@@ -1,0 +1,1 @@
+https://maps.googleapis.com/maps/api/staticmap?center=40.718217,-73.998284&zoom=15&size=600x300&maptype=roadmap&markers=color:red|40.718217,-73.998284&key=AIzaSyD0RXc5xsbg2y4FGjQ9u2uTCTx_fvdeG3w
