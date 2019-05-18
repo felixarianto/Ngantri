@@ -17,6 +17,7 @@ public class PlaceModel extends Model {
     public static final String ONLINE  = "online";
     public static final String NUMBER  = "number";
     public static final String OWNER   = "owner";
+    public static final String DURATION  = "duration";
 
     public PlaceModel() {
         super();

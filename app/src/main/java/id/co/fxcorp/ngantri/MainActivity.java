@@ -3,6 +3,7 @@ package id.co.fxcorp.ngantri;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -25,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initMap();
     }
 
-    ConcurrentHashMap<Integer, PlaceModel> MY_PLACE_MAP = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, PlaceModel> MY_PLACE_MAP = new ConcurrentHashMap<>();
     private void initDrawer() {
         dwr_view = findViewById(R.id.dwr_view);
         nav_view = findViewById(R.id.nav_view);
@@ -84,21 +86,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 try {
                     PlaceModel model = new PlaceModel(dataSnapshot);
+                    MY_PLACE_MAP.put(model.getString(PlaceModel.PLACE_ID), model);
 
                     Intent intent = new Intent(MainActivity.this, OpenActivity.class);
                     intent.setAction("OPEN_PLACE");
                     intent.putExtra(PlaceModel.PLACE_ID, model.getString(PlaceModel.PLACE_ID));
+                    intent.putExtra(PlaceModel.NAME,     model.getString(PlaceModel.NAME));
 
-                    int menu_id = View.generateViewId();
-                    MY_PLACE_MAP.put(menu_id, model);
                     nav_view.getMenu().findItem(R.id.nav_place).getSubMenu()
-                            .add(0, menu_id, MY_PLACE_MAP.size(), model.getString(PlaceModel.NAME))
+                            .add(0, View.generateViewId(), MY_PLACE_MAP.size(), model.getString(PlaceModel.NAME))
                             .setIcon(R.drawable.ic_location)
                             .setIntent(intent);
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
             }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                try {
+                    PlaceModel model = new PlaceModel(dataSnapshot);
+                    MY_PLACE_MAP.put(model.getString(PlaceModel.PLACE_ID), model);
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+
         });
     }
 
@@ -188,21 +201,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(final MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-        if (id == R.id.nav_open) {
-            startActivityForResult(new Intent(this, OpenActivity.class), 1);
-        } else if (id == R.id.nav_ads) {
-            startActivityForResult(new Intent(this, PlacePickerActivity.class), 1);
-        } else {
-            Intent intent = item.getIntent();
-            if (intent != null && "OPEN_PLACE".equals(intent.getAction())) {
-                startActivityForResult(intent, 1);
-            }
-        }
-
         dwr_view.closeDrawer(GravityCompat.START);
+        dwr_view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int id = item.getItemId();
+                    if (id == R.id.nav_open) {
+                        startActivityForResult(new Intent(MainActivity.this, OpenActivity.class), 1);
+                    } else if (id == R.id.nav_ads) {
+                        startActivityForResult(new Intent(MainActivity.this, PlacePickerActivity.class), 1);
+                    } else {
+                        Intent intent = item.getIntent();
+                        if (intent != null && "OPEN_PLACE".equals(intent.getAction())) {
+                            PlaceModel place = MY_PLACE_MAP.get(intent.getStringExtra(PlaceModel.PLACE_ID));
+                            DialogChoosePlace.open(MainActivity.this, place, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Toast.makeText(MainActivity.this, "Soon", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+        }, 200);
         return true;
     }
 

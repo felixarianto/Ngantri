@@ -131,11 +131,13 @@ public class OpenActivity extends AppCompatActivity {
 
         if (getIntent() != null && getIntent().hasExtra(PlaceModel.PLACE_ID)) {
             //Edit
+            setTitle(getIntent().getStringExtra(PlaceModel.NAME));
             fill(getIntent().getStringExtra(PlaceModel.PLACE_ID));
         }
         else {
             //New
             mPlaceDB.put(PlaceModel.PLACE_ID, "P-" + AppInfo.getUserId() + "-" + Long.toHexString(System.currentTimeMillis()));
+            mPlaceDB.put(PlaceModel.OWNER, AppInfo.getUserId());
         }
 
     }
