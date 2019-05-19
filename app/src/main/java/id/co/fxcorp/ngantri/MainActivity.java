@@ -214,13 +214,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     } else if (id == R.id.nav_ads) {
                         startActivityForResult(new Intent(MainActivity.this, PlacePickerActivity.class), 1);
                     } else {
-                        Intent intent = item.getIntent();
+                        final Intent intent = item.getIntent();
                         if (intent != null && "OPEN_PLACE".equals(intent.getAction())) {
                             PlaceModel place = MY_PLACE_MAP.get(intent.getStringExtra(PlaceModel.PLACE_ID));
                             DialogChoosePlace.open(MainActivity.this, place, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    Toast.makeText(MainActivity.this, "Soon", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(MainActivity.this, PortalActivity.class).putExtras(intent.getExtras()));
                                 }
                             });
                         }

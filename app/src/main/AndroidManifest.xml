@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -52,7 +54,12 @@
             android:label="@string/title_activity_open" />
         <activity
             android:name="id.co.fxcorp.util.PlacePickerActivity"
-            android:label="@string/title_activity_place_picker"></activity>
+            android:label="@string/title_activity_place_picker" />
+        <activity android:name=".PortalActivity"></activity>
+
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
+
     </application>
 
 </manifest>

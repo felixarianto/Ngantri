@@ -8,17 +8,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
-import java.util.Map;
 
-import id.co.fxcorp.db.DB;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
 
@@ -40,7 +35,7 @@ public class NearbyPlacesList {
         rcv = rcvList;
         rcv.setAdapter(mNearbyAdapter = new SimpleRecyclerAdapter<PlaceModel>(R.layout.nearby_adapter){
             @Override
-            public void onBind(SimpleRecyclerVH holder, PlaceModel place, int position) {
+            public void onBind(SimpleRecyclerVH holder, final PlaceModel place, int position) {
 
                 TextView txt_number  = holder.itemView.findViewById(R.id.txt_number);
                 TextView txt_name    = holder.itemView.findViewById(R.id.txt_name);
@@ -57,13 +52,27 @@ public class NearbyPlacesList {
                     txt_hour.setText("Buka " + workhour.get(0) + ":00 s/d " + workhour.get(1) + ":00");
                 }
 
-                if (place.getInt(PlaceModel.ONLINE) == 1) {
-                    txt_number.setText(place.getInt(PlaceModel.NUMBER));
+                if (place.isOnline()) {
+                    if (place.getNumberCurrent() == 0) {
+                        txt_number.setText("0");
+                    }
+                    else {
+                        txt_number.setText(1 + place.getNumberLast() - place.getNumberCurrent() + "");
+                    }
                     holder.itemView.findViewById(R.id.lyt_number).setVisibility(View.VISIBLE);
+                    holder.itemView.findViewById(R.id.txt_closed).setVisibility(View.GONE);
                 }
                 else {
                     holder.itemView.findViewById(R.id.lyt_number).setVisibility(View.GONE);
+                    holder.itemView.findViewById(R.id.txt_closed).setVisibility(View.VISIBLE);
                 }
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        DialogChoosePlace.take(rcv.getContext(), place);
+                    }
+                });
             }
         });
     }
