@@ -43,9 +43,9 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_centerInParent="true"
-                    android:background="@drawable/oval_grey"
+                    android:background="@drawable/btn_oval_blue"
                     app:srcCompat="@drawable/ic_chevron_left"
-                    android:tint="@color/grey_10"
+                    android:tint="@color/grey_5"
                     android:scaleType="centerCrop"/>
 
             </RelativeLayout>
@@ -87,7 +87,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_centerInParent="true"
-                    android:background="@drawable/oval_blue"
+                    android:background="@drawable/btn_oval_blue"
                     app:srcCompat="@drawable/ic_chevron_right"
                     android:tint="@color/grey_5"
                     android:scaleType="centerCrop"/>
@@ -96,27 +96,21 @@
 
         </LinearLayout>
 
-        <android.support.v7.widget.CardView
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_call"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="@color/orange_400">
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:layout_marginTop="8dp"
+            android:text="PANGGIL"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/btn_orange"/>
 
-            <Button
-                android:id="@+id/btn_call"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:paddingLeft="50dp"
-                android:paddingRight="50dp"
-                android:text="PANGGIL"
-                android:textSize="24sp"
-                android:textColor="#FFFFFF"
-                android:background="?selectableItemBackgroundBorderless"/>
-
-        </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/chk_call_next"
@@ -126,6 +120,20 @@
             android:textColor="@color/grey_800"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_turn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:layout_marginTop="16dp"
+            android:text="BERIKUTNYA"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/btn_red"/>
+
     </LinearLayout>
 
     <android.support.v7.widget.CardView
@@ -133,7 +141,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
-        android:layout_margin="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
         >
 
@@ -143,19 +152,42 @@
             android:orientation="vertical"
             android:padding="8dp">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:id="@+id/txt_info1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:text="Nomor Terkini : 0"
+                    android:layout_marginBottom="12dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/txt_info3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:text="Nomor Terakhir : 0"
+                    android:layout_marginBottom="12dp"
+                    android:layout_weight="1"
+                    android:gravity="right"/>
+
+            </LinearLayout>
+
+
+
             <TextView
-                android:id="@+id/txt_inbox"
+                android:id="@+id/txt_info2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:text="Inbox (0)"
+                android:text="Antrian Tersisa : 0"
                 android:layout_marginBottom="12dp"/>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rcv_chat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-            </android.support.v7.widget.RecyclerView>
 
         </LinearLayout>
 

@@ -4,9 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
@@ -14,7 +15,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatCheckBox;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,35 +26,42 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+import com.theartofdev.edmodo.cropper.CropImageView.RequestSizeOptions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import id.co.fxcorp.db.DB;
+import id.co.fxcorp.barcode.QrCodeGenerator;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
+import id.co.fxcorp.storage.Storage;
 import id.co.fxcorp.util.MapStatic;
 import id.co.fxcorp.util.PlacePickerActivity;
-
-import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class OpenActivity extends AppCompatActivity {
+public class PlaceActivity extends AppCompatActivity {
 
     private final String TAG = "OpenActivity";
     /**
@@ -83,16 +93,15 @@ public class OpenActivity extends AppCompatActivity {
     private ImageView img_photo;
     private ImageView img_location;
     private Button    btn_location;
-
-
-    String userId = "user1";
+    private FloatingActionButton btn_photo;
+    private ProgressBar prg_photo;
 
     PlaceModel mPlaceDB = new PlaceModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_open);
+        setContentView(R.layout.place_activity);
         scr_form    = findViewById(R.id.scr_form);
         img_photo   = findViewById(R.id.img_photo);
         edt_name    = findViewById(R.id.edt_name);
@@ -111,6 +120,8 @@ public class OpenActivity extends AppCompatActivity {
         prg_sumbit = findViewById(R.id.prg_sumbit);
         btn_location = findViewById(R.id.btn_location);
         img_location = findViewById(R.id.img_location);
+        btn_photo = findViewById(R.id.btn_photo);
+        prg_photo = findViewById(R.id.prg_photo);
 
         prepareType();
 
@@ -118,11 +129,18 @@ public class OpenActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        btn_photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changePhoto();
+            }
+        });
+
         btn_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    startActivityForResult(new Intent(OpenActivity.this, PlacePickerActivity.class), PLACE_PICKER_REQUEST);
+                    startActivityForResult(new Intent(PlaceActivity.this, PlacePickerActivity.class), PLACE_PICKER_REQUEST);
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
@@ -133,6 +151,8 @@ public class OpenActivity extends AppCompatActivity {
             //Edit
             setTitle(getIntent().getStringExtra(PlaceModel.NAME));
             fill(getIntent().getStringExtra(PlaceModel.PLACE_ID));
+
+
         }
         else {
             //New
@@ -185,10 +205,54 @@ public class OpenActivity extends AppCompatActivity {
                         txt_address.setText(address);
 
                         Glide.with(img_location)
-                        .load(MapStatic.getImageUrl(OpenActivity.this, latitude, longitude))
+                        .load(MapStatic.getImageUrl(PlaceActivity.this, latitude, longitude))
                         .into(img_location);
                     }
                     break;
+                case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
+                    if (resultCode == RESULT_OK) {
+                        CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                        final Uri resultUri = result.getUri();
+
+                        File file = new File(resultUri.getPath());
+                        if (!file.exists()) {
+                            Toast.makeText(PlaceActivity.this, "Not Exists ", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        prg_photo.setIndeterminate(true);
+                        prg_photo.setVisibility(View.VISIBLE);
+
+                        final StorageReference ref = Storage.images(mPlaceDB.getPlaceId() + "-pp.jpg");
+
+                        ref.putFile(resultUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                            @Override
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+
+                                // Continue with the task to get the download URL
+                                return ref.getDownloadUrl();
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                prg_photo.setVisibility(View.INVISIBLE);
+                                if (task.isSuccessful()) {
+                                    String img_url = task.getResult().toString();
+                                    mPlaceDB.put(PlaceModel.PHOTO, img_url);
+                                    Glide.with(img_photo).load(resultUri).into(img_photo);
+                                } else {
+                                    Toast.makeText(img_photo.getContext(), "Upload image bermasalah, periksa internet Anda", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+//                        Exception error = result.getError();
+                    }
+                    break;
+
             }
         } catch (Exception e) {
             Log.e(TAG, "", e);
@@ -196,7 +260,7 @@ public class OpenActivity extends AppCompatActivity {
 
     }
 
-    private void fill(String placeid) {
+    private void fill(final String placeid) {
         PlaceDB.getPlace(placeid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -209,10 +273,14 @@ public class OpenActivity extends AppCompatActivity {
                         edt_description.setText(value.getString(PlaceModel.DESCRIPTION));
                         txt_address.setText(value.getString(PlaceModel.ADDRESS));
 
+                        Glide.with(img_photo)
+                                .load(mPlaceDB.getPhoto())
+                                .into(img_photo);
+
                         List<Double> latlng = (List) value.get(PlaceModel.LATLNG);
 
                         Glide.with(img_location)
-                                .load(MapStatic.getImageUrl(OpenActivity.this, latlng.get(0), latlng.get(1)))
+                                .load(MapStatic.getImageUrl(PlaceActivity.this, latlng.get(0), latlng.get(1)))
                                 .into(img_location);
 
                         List<String> workhour = (List) value.get(PlaceModel.WORK_HOUR);
@@ -226,6 +294,8 @@ public class OpenActivity extends AppCompatActivity {
                         chk_jum.setChecked(workhour.get(6).equals("1"));
                         chk_sab.setChecked(workhour.get(7).equals("1"));
                         chk_min.setChecked(workhour.get(8).equals("1"));
+
+                        showQrCode(placeid);
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
@@ -240,44 +310,17 @@ public class OpenActivity extends AppCompatActivity {
     }
 
     private boolean changePhoto() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                if (shouldShowRequestPermissionRationale(CAMERA)) {
-                    Snackbar.make(edt_name, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                            .setAction(android.R.string.ok, new View.OnClickListener() {
-                                @Override
-                                @TargetApi(Build.VERSION_CODES.M)
-                                public void onClick(View v) {
-                                    requestPermissions(new String[]{CAMERA}, REQUEST_CAMERA);
-                                }
-                            });
-                } else {
-                    requestPermissions(new String[]{READ_CONTACTS}, REQUEST_CAMERA);
-                }
-                return false;
-            }
-        }
-
+        CropImage
+        .activity()
+        .setGuidelines(CropImageView.Guidelines.ON)
+        .setRequestedSize(680, 680, RequestSizeOptions.RESIZE_EXACT)
+        .setAspectRatio(680, 680)
+        .start(this);
         return false;
     }
 
     /**
      * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CAMERA) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                changePhoto();
-            }
-        }
-    }
-
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
      */
     private void submit() {
         if (mSubmitTask != null) {
@@ -369,7 +412,7 @@ public class OpenActivity extends AppCompatActivity {
         opsi.add("Tempat Umum");
 
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(OpenActivity.this,
+                new ArrayAdapter<>(PlaceActivity.this,
                         android.R.layout.simple_dropdown_item_1line, opsi);
 
         edt_type.setAdapter(adapter);
@@ -417,6 +460,48 @@ public class OpenActivity extends AppCompatActivity {
         protected void onCancelled() {
             mSubmitTask = null;
             showProgress(false);
+        }
+    }
+
+    private void showQrCode(String placeid) {
+        try {
+            findViewById(R.id.lyt_qrcode).setVisibility(View.VISIBLE);
+            final ImageView                 img_qrcode = findViewById(R.id.img_qrcode);
+            final ProgressBar prg_qrcode = findViewById(R.id.prg_qrcode);
+            prg_qrcode.setIndeterminate(true);
+
+            Display display = getWindowManager().getDefaultDisplay();
+            DisplayMetrics outMetrics = new DisplayMetrics ();
+            display.getMetrics(outMetrics);
+            final float dpWidth  = outMetrics.widthPixels;
+
+            new AsyncTask<String, Integer, Bitmap>() {
+
+                @Override
+                protected Bitmap doInBackground(String... param) {
+                    try {
+                        Bitmap bitmap = QrCodeGenerator.textToImageEncode(PlaceActivity.this, param[0], 320);
+                        return bitmap;
+                    } catch (Exception e) {
+                        Log.e(TAG, "", e);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    try {
+                        if (bitmap != null) {
+                            img_qrcode.setImageBitmap(bitmap);
+                            prg_qrcode.setVisibility(View.INVISIBLE);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "", e);
+                    }
+                }
+            }.execute(placeid);
+        } catch (Exception e) {
+            Log.e(TAG, "", e);
         }
     }
 

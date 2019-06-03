@@ -31,12 +31,13 @@
     </FrameLayout>
 
     <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:menu="@menu/drawer"
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_bar"
-        android:id="@+id/nav_view">
+        app:menu="@menu/drawer"
+        >
 
     </android.support.design.widget.NavigationView>
 

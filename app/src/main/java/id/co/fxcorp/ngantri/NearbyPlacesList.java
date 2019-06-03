@@ -5,17 +5,21 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
 
 import java.util.List;
 
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
+import id.co.fxcorp.db.UserDB;
 
 public class NearbyPlacesList {
 
@@ -37,6 +41,7 @@ public class NearbyPlacesList {
             @Override
             public void onBind(SimpleRecyclerVH holder, final PlaceModel place, int position) {
 
+                ImageView img_photo  = holder.itemView.findViewById(R.id.img_photo);
                 TextView txt_number  = holder.itemView.findViewById(R.id.txt_number);
                 TextView txt_name    = holder.itemView.findViewById(R.id.txt_name);
                 TextView txt_description = holder.itemView.findViewById(R.id.txt_description);
@@ -46,6 +51,8 @@ public class NearbyPlacesList {
                 txt_name       .setText(place.getString(PlaceModel.NAME));
                 txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
                 txt_address    .setText(place.getString(PlaceModel.ADDRESS));
+
+                Glide.with(img_photo).load(place.getPhoto()).into(img_photo);
 
                 List<String> workhour = (List<String>) place.get(PlaceModel.WORK_HOUR);
                 if (workhour != null) {
@@ -70,15 +77,37 @@ public class NearbyPlacesList {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        DialogChoosePlace.take(rcv.getContext(), place);
+                        if (UserDB.MySELF != null && place.getOwner().equals(UserDB.MySELF.id)) {
+                            DialogChoosePlace.open(rcv.getContext(), place);
+                        }
+                        else {
+                            DialogChoosePlace.take(rcv.getContext(), place);
+                        }
                     }
                 });
             }
         });
     }
 
+    private Query              mLastQuery;
+    private ChildEventListener mLastQueryListener;
+    private String mLastGPlaceId;
     public void show(LatLng latlng) {
-        PlaceDB.getNearby(latlng).addChildEventListener(new ChildEventListener() {
+        String g_placeid = PlaceDB.toGPlace(latlng);
+        if (mLastGPlaceId != null && mLastGPlaceId.equals(g_placeid)) {
+            return;
+        }
+        mLastGPlaceId = g_placeid;
+
+        if (mLastQueryListener != null) {
+            mLastQuery.removeEventListener(mLastQueryListener);
+        }
+
+        mNearbyAdapter.DATA.clear();
+        mNearbyAdapter.notifyDataSetChanged();
+
+        mLastQuery = PlaceDB.getNearby(latlng);
+        mLastQuery.addChildEventListener(mLastQueryListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable final String prevChildKey) {
                 try {

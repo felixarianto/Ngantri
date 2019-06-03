@@ -3,10 +3,10 @@ package id.co.fxcorp.ngantri;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,6 +17,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,10 +26,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,14 +40,24 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import id.co.fxcorp.barcode.QrCodeScannerActivity;
+import id.co.fxcorp.db.AntriDB;
+import id.co.fxcorp.db.AntriModel;
 import id.co.fxcorp.db.ChildEvent;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
+import id.co.fxcorp.db.Prefs;
+import id.co.fxcorp.db.UserDB;
+import id.co.fxcorp.db.UserModel;
+import id.co.fxcorp.signin.SignInActivity;
+import id.co.fxcorp.signin.SignUpActivity;
 import id.co.fxcorp.util.Dpi;
 import id.co.fxcorp.util.PlacePickerActivity;
 
@@ -64,39 +77,76 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
 
-        FirebaseApp.initializeApp(this);
         Dpi.init(this);
         initDrawer();
         initSearch();
         initBottomSheet();
         initList();
         initMap();
+
+        loadUserInfo();
     }
 
-    ConcurrentHashMap<String, PlaceModel> MY_PLACE_MAP = new ConcurrentHashMap<>();
-    private void initDrawer() {
-        dwr_view = findViewById(R.id.dwr_view);
-        nav_view = findViewById(R.id.nav_view);
-        nav_view.setNavigationItemSelectedListener(this);
+    private void loadUserInfo() {
+        final String[] email_password = Prefs.getAccount(this);
+        if (email_password == null) {
+            return;
+        }
+        UserDB.login(email_password[0]).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    if (dataSnapshot.exists()) {
+                        UserModel user = dataSnapshot.getChildren().iterator().next().getValue(UserModel.class);
+                        if (user != null && user.password != null && user.password.equals(email_password[1])) {
+                            UserDB.MySELF = user;
+                            txt_name.setText(UserDB.MySELF.name);
+                            txt_email.setText(UserDB.MySELF.email);
+                            Glide.with(img_photo).load(UserDB.MySELF.photo).into(img_photo);
 
-        PlaceDB.getMyPlace().addChildEventListener(new ChildEvent() {
+                            loadMyPlace();
+                            loadMyAntrian();
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    Query      mPlaceQuery;
+    ChildEvent mPlaceListEvent;
+    private void loadMyPlace() {
+        if (UserDB.MySELF == null || mPlaceListEvent != null) {
+            return;
+        }
+        mPlaceQuery = PlaceDB.getMyPlace();
+        mPlaceQuery.addChildEventListener(mPlaceListEvent = new ChildEvent() {
 
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 try {
-                    PlaceModel model = new PlaceModel(dataSnapshot);
-                    MY_PLACE_MAP.put(model.getString(PlaceModel.PLACE_ID), model);
+                    PlaceModel place = new PlaceModel(dataSnapshot);
+                    MY_PLACE_MAP.put(place.getString(PlaceModel.PLACE_ID), place);
 
-                    Intent intent = new Intent(MainActivity.this, OpenActivity.class);
+                    Intent intent = new Intent();
                     intent.setAction("OPEN_PLACE");
-                    intent.putExtra(PlaceModel.PLACE_ID, model.getString(PlaceModel.PLACE_ID));
-                    intent.putExtra(PlaceModel.NAME,     model.getString(PlaceModel.NAME));
+                    intent.putExtra(PlaceModel.PLACE_ID, place.getString(PlaceModel.PLACE_ID));
+                    intent.putExtra(PlaceModel.NAME,     place.getString(PlaceModel.NAME));
 
+                    Drawable icon = getResources().getDrawable(place.isOnline() ? R.drawable.ic_dot : R.drawable.ic_circle_border);
                     nav_view.getMenu().findItem(R.id.nav_place).getSubMenu()
-                            .add(0, View.generateViewId(), MY_PLACE_MAP.size(), model.getString(PlaceModel.NAME))
-                            .setIcon(R.drawable.ic_location)
+                            .add(0, place.getPlaceId().hashCode(), MY_PLACE_MAP.size(), place.getString(PlaceModel.NAME))
+                            .setIcon(icon)
                             .setIntent(intent);
+
+
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
@@ -105,8 +155,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 try {
-                    PlaceModel model = new PlaceModel(dataSnapshot);
-                    MY_PLACE_MAP.put(model.getString(PlaceModel.PLACE_ID), model);
+                    PlaceModel place = new PlaceModel(dataSnapshot);
+                    MY_PLACE_MAP.put(place.getString(PlaceModel.PLACE_ID), place);
+
+                    Intent intent = new Intent();
+                    intent.setAction("OPEN_PLACE");
+                    intent.putExtra(PlaceModel.PLACE_ID, place.getString(PlaceModel.PLACE_ID));
+                    intent.putExtra(PlaceModel.NAME,     place.getString(PlaceModel.NAME));
+
+                    Drawable icon = getResources().getDrawable(place.isOnline() ? R.drawable.ic_dot : R.drawable.ic_circle_border);
+
+                    nav_view.getMenu().findItem(R.id.nav_place).getSubMenu().findItem(place.getPlaceId().hashCode())
+                            .setTitle(place.getName())
+                            .setIcon(icon)
+                            .setIntent(intent);
+
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
@@ -115,6 +178,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    private void clearMyPlace() {
+        if (mPlaceQuery != null) {
+            mPlaceQuery.removeEventListener(mPlaceListEvent);
+        }
+        nav_view.getMenu().findItem(R.id.nav_place).getSubMenu().clear();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (txt_email.getText().toString().isEmpty()) {
+            if (UserDB.MySELF != null) {
+                txt_name.setText(UserDB.MySELF.name);
+                txt_email.setText(UserDB.MySELF.email);
+                Glide.with(img_photo).load(UserDB.MySELF.photo).into(img_photo);
+                loadMyPlace();
+            }
+        }
+        else {
+            if (UserDB.MySELF == null) {
+                txt_name.setText("Masuk | Daftar");
+                txt_email.setText("");
+                img_photo.setImageResource(R.drawable.ic_person_default);
+                clearMyPlace();
+            }
+        }
+    }
+
+    private ImageView img_photo;
+    private TextView  txt_name;
+    private TextView  txt_email;
+    ConcurrentHashMap<String, PlaceModel> MY_PLACE_MAP = new ConcurrentHashMap<>();
+    private void initDrawer() {
+        dwr_view = findViewById(R.id.dwr_view);
+        nav_view = findViewById(R.id.nav_view);
+
+        img_photo = nav_view.getHeaderView(0).findViewById(R.id.img_photo);
+        txt_name  = nav_view.getHeaderView(0).findViewById(R.id.txt_name);
+        txt_email = nav_view.getHeaderView(0).findViewById(R.id.txt_email);
+
+        ((View) txt_name.getParent()).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (UserDB.MySELF == null) {
+                    startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                }
+                else {
+                    startActivity(new Intent(MainActivity.this, SignUpActivity.class)
+                                      .putExtra("id", UserDB.MySELF.id));
+                }
+            }
+        });
+
+        nav_view.setNavigationItemSelectedListener(this);
+    }
+
+    private final int REQEUST_SCAN_QRCODE = 21;
     private void initSearch() {
         ImageButton btn_menu = findViewById(R.id.btn_menu);
         btn_menu.setOnClickListener(new View.OnClickListener() {
@@ -128,14 +247,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        ImageButton btn_profile = findViewById(R.id.btn_profile);
-        btn_profile.setOnClickListener(new View.OnClickListener() {
+        ImageButton btn_qrcode = findViewById(R.id.btn_qrcode);
+        btn_qrcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //SIGN UP
-                //SIGN IN
+                startActivityForResult(new Intent(MainActivity.this, QrCodeScannerActivity.class), REQEUST_SCAN_QRCODE);
             }
         });
+
     }
 
     private void initBottomSheet() {
@@ -210,19 +329,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     int id = item.getItemId();
                     if (id == R.id.nav_open) {
-                        startActivityForResult(new Intent(MainActivity.this, OpenActivity.class), 1);
+                        startActivityForResult(new Intent(MainActivity.this, PlaceActivity.class), 1);
                     } else if (id == R.id.nav_ads) {
                         startActivityForResult(new Intent(MainActivity.this, PlacePickerActivity.class), 1);
                     } else {
                         final Intent intent = item.getIntent();
                         if (intent != null && "OPEN_PLACE".equals(intent.getAction())) {
                             PlaceModel place = MY_PLACE_MAP.get(intent.getStringExtra(PlaceModel.PLACE_ID));
-                            DialogChoosePlace.open(MainActivity.this, place, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    startActivity(new Intent(MainActivity.this, PortalActivity.class).putExtras(intent.getExtras()));
-                                }
-                            });
+                            DialogChoosePlace.open(MainActivity.this, place);
                         }
                     }
                 } catch (Exception e) {
@@ -253,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static int PERMISSION_LOCATION = 1;
 
-    private boolean locationListenerReady = false;
+    private LocationListener mLocationListener;
     private void prepareMyLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_LOCATION);
@@ -261,8 +375,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationListenerReady) {
-            locationListenerReady = true;
+        if (mLocationListener == null) {
             LocationListener locationListener = new LocationListener() {
 
                 public void onLocationChanged(Location location) {
@@ -281,6 +394,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             };
 
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 60 * 5, 1000, locationListener);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 60 * 5, 1000, locationListener);
         }
 
         final Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -328,5 +442,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ValueAnimator lastPulseAnimator;
 
 
+    Query mAntrianQuery;
+    ChildEvent mAntrianListEvent;
+    private void loadMyAntrian() {
+        if (UserDB.MySELF == null || mAntrianListEvent != null) {
+            return;
+        }
+        mAntrianQuery = AntriDB.getMyAntrian(UserDB.MySELF.id);
+        mAntrianQuery.addChildEventListener(mAntrianListEvent = new ChildEvent() {
 
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                try {
+                    Log.w(TAG, "INI >> " + dataSnapshot.getValue().toString());
+                    AntriModel antri = dataSnapshot.getValue(AntriModel.class);
+
+                    SubMenu menu = nav_view.getMenu().findItem(R.id.nav_antri).getSubMenu();
+                    menu.add(0, antri.id.hashCode(), menu.size(), antri.place_name + " (" + antri.number + ")");
+
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                try {
+
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+
+        });
+    }
+
+    private void clearMyTicket() {
+        if (mAntrianQuery != null) {
+            mAntrianQuery.removeEventListener(mAntrianListEvent);
+        }
+        nav_view.getMenu().findItem(R.id.nav_antri).getSubMenu().clear();
+    }
 }

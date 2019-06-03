@@ -21,6 +21,10 @@ public class PlaceDB {
 
     public static final String PLACE = "PLACE";
 
+    public static String toGPlace(LatLng latlng) {
+        return (String.format("%.2f", latlng.latitude) + ":" + String.format("%.2f", latlng.longitude)).replaceAll("\\.", "x");
+    }
+
     public static Query getNearby(LatLng latlng) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
         String g_place = (String.format("%.2f", latlng.latitude) + ":" + String.format("%.2f", latlng.longitude)).replaceAll("\\.", "x");
@@ -56,4 +60,6 @@ public class PlaceDB {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
         return ref.child(place_id);
     }
+
+
 }

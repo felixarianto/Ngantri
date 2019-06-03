@@ -21,4 +21,5 @@
         completions."
     </string>
     <string name="title_activity_place_picker">Place Picker</string>
+    <string name="title_activity_sign_in">Sign In</string>
 </resources>

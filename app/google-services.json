@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "1055539003986",
-    "firebase_url": "https://ngantri-a40ef.firebaseio.com",
-    "project_id": "ngantri-a40ef",
-    "storage_bucket": "ngantri-a40ef.appspot.com"
+    "project_number": "653041381728",
+    "firebase_url": "https://ngantri-554b0.firebaseio.com",
+    "project_id": "ngantri",
+    "storage_bucket": "ngantri.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1055539003986:android:9d4290fd51099c25",
+        "mobilesdk_app_id": "1:653041381728:android:9d4290fd51099c25",
         "android_client_info": {
           "package_name": "id.co.fxcorp.ngantri"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1055539003986-47sp2ur8543up21ds7eb96cegtatg7m2.apps.googleusercontent.com",
+          "client_id": "653041381728-kpadkph48tfhec3n8s0b88jm7kdo8bjb.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "id.co.fxcorp.ngantri",
@@ -23,20 +23,20 @@
           }
         },
         {
-          "client_id": "1055539003986-8t4nl1v8jcb4i5g0cbt5cp8c1dvchlas.apps.googleusercontent.com",
+          "client_id": "653041381728-suna2rioscpm38b14j01ft62i47123t6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD49xW8r2u_88WWkZCgTIFWtA1-AWgEgtQ"
+          "current_key": "AIzaSyAl00-Sx13AMKTh-nZbv1DK9A4mlOcvzQY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1055539003986-8t4nl1v8jcb4i5g0cbt5cp8c1dvchlas.apps.googleusercontent.com",
+              "client_id": "653041381728-suna2rioscpm38b14j01ft62i47123t6.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

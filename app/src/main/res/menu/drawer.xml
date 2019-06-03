@@ -12,22 +12,17 @@
         android:icon="@drawable/ic_time"
         android:title="Pasang Iklan" />
 
-    <item android:title="TEMPAT SAYA"
-          android:id="@+id/nav_place">
+    <item android:title="ANTRIAN SAYA"
+        android:id="@+id/nav_antri">
         <menu>
 
         </menu>
     </item>
 
-    <item android:title="PESAN"
-        android:id="@+id/nav_chat">
+    <item android:title="TEMPAT SAYA"
+          android:id="@+id/nav_place">
         <menu>
-            <item
-                android:icon="@drawable/ic_person"
-                android:title="Tukijan" />
-            <item
-                android:icon="@drawable/ic_person"
-                android:title="Samidi" />
+
         </menu>
     </item>
 

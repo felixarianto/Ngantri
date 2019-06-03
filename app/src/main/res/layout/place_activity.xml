@@ -7,7 +7,7 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:focusableInTouchMode="true"
-    tools:context=".OpenActivity">
+    tools:context=".PlaceActivity">
 
     <ProgressBar
         android:id="@+id/prg_sumbit"
@@ -46,19 +46,34 @@
                     android:layout_centerInParent="true"
                     app:cardCornerRadius="90dp"
                     app:cardBackgroundColor="@color/blue_grey_50"
-                    app:cardElevation="1dp">
+                    app:cardElevation="4dp">
 
-                    <ImageView
-                        android:id="@+id/img_photo"
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="10dp"
-                        android:background="@drawable/ic_office"
-                        android:backgroundTint="#FFFFFF"/>
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:id="@+id/img_photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/ic_office"
+                            android:backgroundTint="#FFFFFF"
+                            android:scaleType="centerCrop"/>
+
+                        <ProgressBar
+                            android:id="@+id/prg_photo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:visibility="invisible"
+                            />
+
+                    </RelativeLayout>
 
                 </android.support.v7.widget.CardView>
 
                 <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/btn_photo"
                     android:layout_width="52dp"
                     android:layout_height="52dp"
                     android:src="@drawable/ic_menu_camera"
@@ -66,6 +81,8 @@
                     android:layout_alignBottom="@+id/crd_photo"
                     android:layout_alignRight="@+id/crd_photo"
                     />
+
+
 
             </RelativeLayout>
 
@@ -295,6 +312,53 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:elevation="0dp"/>
+
+            <LinearLayout
+                android:id="@+id/lyt_qrcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:text="Kode QR*"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="12dp"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:scaleType="fitCenter"
+                        android:layout_marginTop="12dp"
+                        android:src="@drawable/sample_qr"
+                        android:alpha="0.3"
+                        android:padding="30dp"/>
+
+                    <ImageView
+                        android:id="@+id/img_qrcode"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:scaleType="fitCenter"
+                        android:layout_marginTop="12dp"/>
+
+                    <ProgressBar
+                        android:id="@+id/prg_qrcode"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_centerInParent="true"/>
+
+                </RelativeLayout>
+
+
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

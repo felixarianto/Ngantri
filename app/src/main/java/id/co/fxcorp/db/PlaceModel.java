@@ -22,6 +22,7 @@ public class PlaceModel extends Model {
     public static final String NUMBER_CURRENT  = "number_current";
     public static final String NUMBER_LAST     = "number_last";
     public static final String DURATION  = "duration";
+    public static final String PHOTO  = "photo";
 
     public PlaceModel() {
         super();
@@ -118,6 +119,10 @@ public class PlaceModel extends Model {
 
     public final long getNumberLast() {
         return getLong(NUMBER_LAST);
+    }
+
+    public final String getPhoto() {
+        return getString(PHOTO);
     }
 
 
