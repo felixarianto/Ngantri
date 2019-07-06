@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -48,6 +50,14 @@ public class Notif {
             builder.setContentText(antri.call_msg);
             builder.setNumber(Long.valueOf(antri.call_count).intValue());
             builder.setSmallIcon(R.drawable.ic_ngantri);
+
+            Intent notifyIntent = new Intent(context, MainActivity.class);
+            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+            builder.setContentIntent(pendingIntent);
 
             Notification.InboxStyle inboxStyle = new Notification.InboxStyle();
             inboxStyle.setBuilder(builder);
