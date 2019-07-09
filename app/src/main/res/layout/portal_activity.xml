@@ -97,22 +97,7 @@
         </LinearLayout>
 
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btn_turn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:paddingLeft="50dp"
-            android:paddingRight="50dp"
-            android:layout_marginTop="16dp"
-            android:text="Berikutnya"
-            android:drawableRight="@drawable/ic_chevron_right"
-            android:drawableTint="@color/light_blue_100"
-            android:drawablePadding="0dp"
-            android:textSize="16sp"
-            android:textColor="@color/light_blue_100"
-            android:background="@android:color/transparent"/>
+
 
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -124,21 +109,38 @@
             android:visibility="invisible"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:weightSum="2">
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btn_call"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:paddingLeft="30dp"
-            android:drawableRight="@drawable/ic_notifications"
-            android:drawableTint="#FFFFFF"
-            android:drawablePadding="12dp"
-            android:text="PANGGIL"
-            android:textSize="18sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="@color/btn_orange"/>
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btn_call"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:drawableRight="@drawable/ic_notifications"
+                android:drawableTint="#FFFFFF"
+                android:text="PANGGIL"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/btn_orange"/>
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btn_turn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="LEWATI"
+                android:drawableRight="@drawable/ic_seat"
+                android:drawableTint="#FFFFFF"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/colorPrimaryLight"/>
+
+        </LinearLayout>
 
 
     </LinearLayout>

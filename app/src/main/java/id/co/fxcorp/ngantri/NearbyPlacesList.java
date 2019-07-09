@@ -60,12 +60,7 @@ public class NearbyPlacesList {
                 }
 
                 if (place.isOnline()) {
-                    if (place.getNumberCurrent() == 0) {
-                        txt_number.setText("0");
-                    }
-                    else {
-                        txt_number.setText(1 + place.getNumberLast() - place.getNumberCurrent() + "");
-                    }
+                    txt_number.setText(place.getNumberQty() + "");
                     holder.itemView.findViewById(R.id.lyt_number).setVisibility(View.VISIBLE);
                     holder.itemView.findViewById(R.id.txt_closed).setVisibility(View.GONE);
                 }

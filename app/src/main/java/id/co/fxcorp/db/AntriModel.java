@@ -11,4 +11,12 @@ public class AntriModel {
     public String call_msg;
     public String place_id;
     public String place_name;
+    public String place_photo;
+    public String status;
+    public long   created_time;
+
+
+    public boolean isComplete() {
+        return status != null && status.equals("Selesai");
+    }
 }

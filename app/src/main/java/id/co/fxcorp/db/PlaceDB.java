@@ -44,10 +44,22 @@ public class PlaceDB {
         return ref.child(place_id).updateChildren(map);
     }
 
+    public static Task<Void> setNumberQty(String place_id, long qty) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(PlaceModel.NUMBER_QTY, qty);
+        return ref.child(place_id).updateChildren(map);
+    }
+
     public static Task<Void> setOnline(String place_id, boolean online) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
         HashMap<String, Object> map = new HashMap<>();
         map.put(PlaceModel.ONLINE, online ? 1l : 0l);
+        if (!online) {
+            map.put(PlaceModel.NUMBER_CURRENT, 0l);
+            map.put(PlaceModel.NUMBER_LAST, 0l);
+            map.put(PlaceModel.NUMBER_QTY, 0l);
+        }
         return ref.child(place_id).updateChildren(map);
     }
 

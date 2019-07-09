@@ -40,6 +40,7 @@ import java.io.File;
 import id.co.fxcorp.db.Prefs;
 import id.co.fxcorp.db.UserDB;
 import id.co.fxcorp.db.UserModel;
+import id.co.fxcorp.ngantri.AppService;
 import id.co.fxcorp.ngantri.R;
 import id.co.fxcorp.storage.Storage;
 
@@ -119,8 +120,7 @@ public class SignUpActivity extends AppCompatActivity {
                             btn_signout.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    UserDB.MySELF = null;
-                                    Prefs.setAccount(SignUpActivity.this, "", "");
+                                    AppService.signOut(SignUpActivity.this);
                                     finish();
                                 }
                             });
@@ -292,9 +292,7 @@ public class SignUpActivity extends AppCompatActivity {
         UserDB.insert(mUser).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                UserModel user = mUser;
-                Prefs.setAccount(SignUpActivity.this, user.email, user.password);
-                UserDB.MySELF  = user;
+                AppService.signUp(SignUpActivity.this, mUser);
                 showProgress(false);
                 finish();
             }

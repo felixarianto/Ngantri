@@ -26,6 +26,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.Iterator;
 
 import id.co.fxcorp.db.AntriDB;
 import id.co.fxcorp.db.AntriModel;
@@ -67,14 +70,14 @@ public class DialogChoosePlace {
             btn_positive.setText("BUKA ANTRIAN");
         }
 
-        txt_name    .setText(place.getString(PlaceModel.NAME));
+        txt_name       .setText(place.getString(PlaceModel.NAME));
         txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
 
-        if (place.getNumberCurrent() == 0) {
+        if (place.getNumberQty() == 0) {
             txt_info.setText("Tidak ada antrian");
         }
         else {
-            txt_info.setText((1 + place.getNumberLast() - place.getNumberCurrent()) + " antrian");
+            txt_info.setText(place.getNumberQty() + " antrian");
         }
 
         txt_name.setOnClickListener(new View.OnClickListener() {
@@ -107,7 +110,7 @@ public class DialogChoosePlace {
         final DialogInterface.OnClickListener positiveClick = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ((Activity) context).startActivity(new Intent(context, PortalActivity.class)
+                ((Activity) context).startActivity(new Intent(context, Portal2Activity.class)
                         .putExtra(PlaceModel.PLACE_ID, place.getPlaceId())
                         .putExtra(PlaceModel.NAME, place.getName())
                 );
@@ -173,13 +176,13 @@ public class DialogChoosePlace {
 
         txt_name    .setText("Anda akan menutup " + place.getString(PlaceModel.NAME) + "?");
 
-        if (place.getNumberCurrent() == 0) {
+        if (place.getNumberQty() == 0) {
             txt_description.setText("");
             txt_info.setText("Tidak ada antrian tersisa");
         }
         else {
             txt_description.setText("Seluruh Antrian yang tersisa akan dibatalkan.");
-            txt_info.setText((1 + place.getNumberLast() - place.getNumberCurrent()) + " antrian tersisa");
+            txt_info.setText(place.getNumberQty() + " antrian tersisa");
         }
 
         view.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
@@ -196,30 +199,36 @@ public class DialogChoosePlace {
             @Override
             public void onClick(final View view) {
                 try {
-                    if (!place.isOnline()) {
-                        dialog.dismiss();
-                        if (positiveClick != null) {
-                            positiveClick.onClick(dialog, view.getId());
-                        }
-                    }
-                    else {
-                        PlaceDB.setOnline(place.getPlaceId(), false)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                dialog.dismiss();
-                                if (positiveClick != null) {
-                                    positiveClick.onClick(dialog, view.getId());
+                    AntriDB.getAntriListAtPlace(place.getPlaceId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                            while (iterator.hasNext()) {
+                                iterator.next().getRef().removeValue();
+                            }
+                            PlaceDB.setOnline(place.getPlaceId(), false)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    dialog.dismiss();
+                                    if (positiveClick != null) {
+                                        positiveClick.onClick(dialog, view.getId());
+                                    }
                                 }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(context, "Koneksi bermasalah, mohon coba lagi", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(context, "Koneksi bermasalah, mohon coba lagi", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 } catch (Exception e) {
                     Log.e("DialogChoosePlace", "", e);
                 }
@@ -251,10 +260,7 @@ public class DialogChoosePlace {
         txt_name    .setText(place.getString(PlaceModel.NAME));
         txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
 
-        long number   = place.getNumberCurrent();
-        if (place.getNumberCurrent() > 0) {
-            number    = 1 + place.getNumberLast() - place.getNumberCurrent();
-        }
+        long number   = place.getNumberQty();
         long duration = place.getLong(PlaceModel.DURATION);
         if (number == 0) {
             txt_info.setText("Tidak ada antrian");
@@ -296,6 +302,7 @@ public class DialogChoosePlace {
                                 place.put(PlaceModel.NUMBER_CURRENT, new_number);
                             }
                             place.put(PlaceModel.NUMBER_LAST, new_number);
+                            place.put(PlaceModel.NUMBER_QTY, place.getNumberQty() + 1);
                             mutableData.setValue(place);
                             return Transaction.success(mutableData);
                         }
@@ -313,6 +320,8 @@ public class DialogChoosePlace {
                                 antri.number = new_number;
                                 antri.place_id   = place.getPlaceId();
                                 antri.place_name = place.getName();
+                                antri.place_photo = place.getPhoto();
+                                antri.created_time = System.currentTimeMillis();
 
                                 AntriDB.insert(antri).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override

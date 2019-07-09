@@ -92,7 +92,7 @@
                     android:textStyle="normal"
                     android:text="AMBIL ANTRIAN"
                     android:textColor="#FFFF"
-                    android:backgroundTint="@color/colorPrimaryLight"/>
+                    android:backgroundTint="@color/colorPrimaryDark"/>
 
             </LinearLayout>
 

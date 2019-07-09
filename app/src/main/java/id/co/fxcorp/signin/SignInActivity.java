@@ -49,6 +49,7 @@ import java.util.List;
 import id.co.fxcorp.db.Prefs;
 import id.co.fxcorp.db.UserDB;
 import id.co.fxcorp.db.UserModel;
+import id.co.fxcorp.ngantri.AppService;
 import id.co.fxcorp.ngantri.R;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -105,29 +106,20 @@ public class SignInActivity extends AppCompatActivity {
 
     private void signin() {
         prg_signin.setVisibility(View.VISIBLE);
-
-        UserDB.login(edt_email.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
-
+        AppService.signIn(SignInActivity.this, edt_email.getText().toString(), edt_password.getText().toString(), new AppService.SignInListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    UserModel user = dataSnapshot.getChildren().iterator().next().getValue(UserModel.class);
-                    if (user != null && user.password.equals(edt_password.getText().toString())) {
-                        Prefs.setAccount(SignInActivity.this, user.email, user.password);
-                        UserDB.MySELF  = user;
-                        prg_signin.setVisibility(View.GONE);
-                        finish();
-                        return;
-                    }
+            public void OnResult(boolean status, UserModel user) {
+                if (status) {
+                    prg_signin.setVisibility(View.GONE);
+                    finish();
+                    return;
                 }
-                Toast.makeText(SignInActivity.this, "Email atau password tidak tepat", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                else {
+                    Toast.makeText(SignInActivity.this, "Email atau password tidak tepat", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
     }
 
 

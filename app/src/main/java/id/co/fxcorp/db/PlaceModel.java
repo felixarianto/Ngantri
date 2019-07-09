@@ -21,6 +21,7 @@ public class PlaceModel extends Model {
     public static final String ONLINE  = "online";
     public static final String NUMBER_CURRENT  = "number_current";
     public static final String NUMBER_LAST     = "number_last";
+    public static final String NUMBER_QTY      = "number_qty";
     public static final String DURATION  = "duration";
     public static final String PHOTO  = "photo";
 
@@ -119,6 +120,10 @@ public class PlaceModel extends Model {
 
     public final long getNumberLast() {
         return getLong(NUMBER_LAST);
+    }
+
+    public final long getNumberQty() {
+        return getLong(NUMBER_QTY);
     }
 
     public final String getPhoto() {

@@ -24,10 +24,16 @@ public class AntriDB {
                 .child(model.place_id + "-" + model.number).setValue(model);
     }
 
-    public static Query getMyAntrian(String cust_id) {
+    public static Query getMyAntriList() {
         return FirebaseDatabase.getInstance()
                 .getReference(ANTRIAN)
-                .orderByChild("cust_id").equalTo(cust_id);
+                .orderByChild("cust_id").equalTo(UserDB.MySELF.id);
+    }
+
+    public static Query getAntriListAtPlace(String place_id) {
+        return FirebaseDatabase.getInstance()
+                .getReference(ANTRIAN)
+                .orderByChild("place_id").equalTo(place_id);
     }
 
     public static Task<Void> call(String antri_id, long call_count, String call_msg) {
@@ -38,5 +44,11 @@ public class AntriDB {
         return ref.child(antri_id).updateChildren(map);
     }
 
+    public static Task<Void> setStatus(String antri_id, String status) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(ANTRIAN);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("status", status);
+        return ref.child(antri_id).updateChildren(map);
+    }
 
 }

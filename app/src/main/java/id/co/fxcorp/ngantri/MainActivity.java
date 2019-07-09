@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.SubMenu;
@@ -41,9 +42,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -53,16 +52,14 @@ import id.co.fxcorp.db.AntriModel;
 import id.co.fxcorp.db.ChildEvent;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
-import id.co.fxcorp.db.Prefs;
 import id.co.fxcorp.db.UserDB;
-import id.co.fxcorp.db.UserModel;
 import id.co.fxcorp.signin.SignInActivity;
 import id.co.fxcorp.signin.SignUpActivity;
 import id.co.fxcorp.util.Dpi;
 import id.co.fxcorp.util.PlacePickerActivity;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, AppService.Callback {
 
     private final String TAG = "MainActivity";
 
@@ -77,47 +74,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
 
+        AppService.registerPostCallback(this);
+
         Dpi.init(this);
         initDrawer();
         initSearch();
         initBottomSheet();
         initList();
         initMap();
+        initUserInfo();
 
-        loadUserInfo();
     }
 
-    private void loadUserInfo() {
-        final String[] email_password = Prefs.getAccount(this);
-        if (email_password == null) {
-            return;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppService.unregisterPostCallback(this);
+    }
+
+    @Override
+    public void onIncomingPost(AppService.PostId p_post_id, String p_data) {
+        switch (p_post_id) {
+            case SIGN_UP:
+            case SIGN_IN:
+            {
+                initUserInfo();
+            }
+            break;
+            case SIGN_OUT:
+            {
+                initUserInfo();
+            }
+            break;
         }
-        UserDB.login(email_password[0]).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    if (dataSnapshot.exists()) {
-                        UserModel user = dataSnapshot.getChildren().iterator().next().getValue(UserModel.class);
-                        if (user != null && user.password != null && user.password.equals(email_password[1])) {
-                            UserDB.MySELF = user;
-                            txt_name.setText(UserDB.MySELF.name);
-                            txt_email.setText(UserDB.MySELF.email);
-                            Glide.with(img_photo).load(UserDB.MySELF.photo).into(img_photo);
+    }
 
-                            loadMyPlace();
-                            loadMyAntrian();
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+    private void initUserInfo() {
+        if (UserDB.MySELF != null) {
+            txt_name.setText(UserDB.MySELF.name);
+            txt_email.setText(UserDB.MySELF.email);
+            Glide.with(img_photo).load(UserDB.MySELF.photo).into(img_photo);
+            loadMyPlace();
+            loadMyAntriList();
+        }
+        else {
+            txt_name.setText("Masuk | Daftar");
+            txt_email.setText("");
+            img_photo.setImageResource(R.drawable.ic_person_default);
+            clearMyPlace();
+            clearMyAntriList();
+        }
     }
 
     Query      mPlaceQuery;
@@ -175,34 +181,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
 
+
+
         });
     }
 
     private void clearMyPlace() {
         if (mPlaceQuery != null) {
             mPlaceQuery.removeEventListener(mPlaceListEvent);
+            mPlaceListEvent = null;
         }
         nav_view.getMenu().findItem(R.id.nav_place).getSubMenu().clear();
     }
     @Override
     protected void onResume() {
         super.onResume();
-        if (txt_email.getText().toString().isEmpty()) {
-            if (UserDB.MySELF != null) {
-                txt_name.setText(UserDB.MySELF.name);
-                txt_email.setText(UserDB.MySELF.email);
-                Glide.with(img_photo).load(UserDB.MySELF.photo).into(img_photo);
-                loadMyPlace();
-            }
-        }
-        else {
-            if (UserDB.MySELF == null) {
-                txt_name.setText("Masuk | Daftar");
-                txt_email.setText("");
-                img_photo.setImageResource(R.drawable.ic_person_default);
-                clearMyPlace();
-            }
-        }
     }
 
     private ImageView img_photo;
@@ -257,7 +250,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    private CardView crd_gps;
     private void initBottomSheet() {
+        crd_gps = findViewById(R.id.crd_gps);
+
         LinearLayout bottom_sheet = findViewById(R.id.bottom_sheet);
         BottomSheetBehavior bottom_sheet_behaviour = BottomSheetBehavior.from(bottom_sheet);
         bottom_sheet_behaviour.setPeekHeight(400);
@@ -373,10 +369,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_LOCATION);
             return;
         }
+        crd_gps.setVisibility(View.VISIBLE);
 
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (mLocationListener == null) {
-            LocationListener locationListener = new LocationListener() {
+            mLocationListener = new LocationListener() {
 
                 public void onLocationChanged(Location location) {
                     try {
@@ -393,8 +390,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 public void onProviderDisabled(String provider) {}
             };
 
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 60 * 5, 1000, locationListener);
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 60 * 5, 1000, locationListener);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 60 * 5, 1000, mLocationListener);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 60 * 5, 1000, mLocationListener);
         }
 
         final Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -434,32 +431,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         va.start();
         lastPulseAnimator = va;
 
-        NearbyPlacesList.get().show(latlng);
+        if (AppService.isConnected(MainActivity.this)) {
+            NearbyPlacesList.get().show(latlng);
+        }
 
     }
+
+
 
     private Circle lastUserCircle;
     private ValueAnimator lastPulseAnimator;
 
 
-    Query mAntrianQuery;
-    ChildEvent mAntrianListEvent;
-    private void loadMyAntrian() {
-        if (UserDB.MySELF == null || mAntrianListEvent != null) {
+    Query mAntriQuery;
+    ChildEvent mAntriListEvent;
+    private void loadMyAntriList() {
+        if (UserDB.MySELF == null || mAntriListEvent != null) {
             return;
         }
-        mAntrianQuery = AntriDB.getMyAntrian(UserDB.MySELF.id);
-        mAntrianQuery.addChildEventListener(mAntrianListEvent = new ChildEvent() {
+        mAntriQuery = AntriDB.getMyAntriList();
+        mAntriQuery.addChildEventListener(mAntriListEvent = new ChildEvent() {
 
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 try {
                     Log.w(TAG, "INI >> " + dataSnapshot.getValue().toString());
                     AntriModel antri = dataSnapshot.getValue(AntriModel.class);
-
-                    SubMenu menu = nav_view.getMenu().findItem(R.id.nav_antri).getSubMenu();
-                    menu.add(0, antri.id.hashCode(), menu.size(), antri.place_name + " (" + antri.number + ")");
-
+                    if (!antri.isComplete()) {
+                        SubMenu menu = nav_view.getMenu().findItem(R.id.nav_antri).getSubMenu();
+                        menu.add(0, antri.id.hashCode(), menu.size(), antri.place_name + " (" + antri.number + ")");
+                    }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
@@ -468,7 +469,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 try {
+                    AntriModel antri = dataSnapshot.getValue(AntriModel.class);
+                    if (antri.isComplete()) {
+                        SubMenu menu = nav_view.getMenu().findItem(R.id.nav_antri).getSubMenu();
+                        menu.removeItem(antri.id.hashCode());
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
 
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    AntriModel antri = dataSnapshot.getValue(AntriModel.class);
+                    SubMenu menu = nav_view.getMenu().findItem(R.id.nav_antri).getSubMenu();
+                    menu.removeItem(antri.id.hashCode());
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
@@ -477,10 +493,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private void clearMyTicket() {
-        if (mAntrianQuery != null) {
-            mAntrianQuery.removeEventListener(mAntrianListEvent);
+    private void clearMyAntriList() {
+        if (mAntriQuery != null) {
+            mAntriQuery.removeEventListener(mAntriListEvent);
+            mAntriListEvent = null;
         }
         nav_view.getMenu().findItem(R.id.nav_antri).getSubMenu().clear();
     }
+
+
 }

@@ -10,82 +10,123 @@
     android:layout_marginTop="70dp">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/crd_gps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardElevation="1dp"
-        app:cardCornerRadius="8dp"
+        app:cardElevation="1px"
+        app:cardCornerRadius="4dp"
+        android:layout_margin="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/img_gps"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:srcCompat="@drawable/ic_gps"
+                android:padding="4dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Memindai lokasi..."/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="1px"
+        app:cardCornerRadius="4dp"
         android:layout_margin="10dp"
         >
 
-        <android.support.v4.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="true"
-            >
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <View
+                android:layout_width="180dp"
+                android:layout_height="4dp"
+                android:background="@color/colorPrimary"/>
+
+            <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sedang Antri"
-                        android:padding="8dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rcv_antrian"
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-                        android:orientation="vertical"
-                        android:padding="8dp"
-                        >
-
-                    </android.support.v7.widget.RecyclerView>
-
-                </LinearLayout>
+                android:layout_height="match_parent"
+                android:clipToPadding="true"
+                >
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sekitar Anda"
-                        android:padding="8dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rcv_nearby"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
                         android:orientation="vertical"
-                        android:padding="8dp"
-                        >
+                        android:visibility="gone">
 
-                    </android.support.v7.widget.RecyclerView>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sedang Antri"
+                            android:padding="8dp"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rcv_antrian"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            >
+
+                        </android.support.v7.widget.RecyclerView>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sekitar Anda"
+                            android:padding="8dp"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rcv_nearby"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            >
+
+                        </android.support.v7.widget.RecyclerView>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </android.support.v4.widget.NestedScrollView>
 
-        </android.support.v4.widget.NestedScrollView>
+        </LinearLayout>
 
     </android.support.v7.widget.CardView>
-
-
 
 </LinearLayout>
 

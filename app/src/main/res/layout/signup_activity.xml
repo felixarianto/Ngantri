@@ -156,9 +156,14 @@
                 android:layout_marginTop="40dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_power"
+                android:drawablePadding="8dp"
+                android:padding="16dp"
                 android:text="KELUAR"
+                android:backgroundTint="@color/grey_400"
+                android:drawableTint="#FFFFFF"
+                android:textColor="#FFFFFF"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                android:background="@android:color/transparent"
                 android:layout_gravity="center_horizontal"/>
 
         </LinearLayout>

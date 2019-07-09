@@ -64,6 +64,7 @@ public class PortalActivity extends AppCompatActivity {
             }
         });
 
+
     }
 
     @Override
