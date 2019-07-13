@@ -31,6 +31,8 @@ import id.co.fxcorp.db.AntriDB;
 import id.co.fxcorp.db.AntriModel;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
+import id.co.fxcorp.message.MessagingActivity;
+import id.co.fxcorp.util.DateUtil;
 
 public class Portal2Activity extends AppCompatActivity {
 
@@ -73,7 +75,16 @@ public class Portal2Activity extends AppCompatActivity {
             }
         });
 
-
+        findViewById(R.id.btn_chat).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), MessagingActivity.class);
+                intent.putExtra("title",  mPlace.getName() + " " + DateUtil.formatDate(System.currentTimeMillis()));
+                intent.putExtra("group",  DateUtil.formatDateReverse(System.currentTimeMillis()));
+                intent.putExtra("number", 0l);
+                view.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override

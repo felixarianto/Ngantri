@@ -62,6 +62,4 @@ dependencies {
 //    compile 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
 
 
-
-
 }

@@ -115,14 +115,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             txt_email.setText(UserDB.MySELF.email);
             Glide.with(img_photo).load(UserDB.MySELF.photo).into(img_photo);
             loadMyPlace();
-            loadMyAntriList();
+//            loadMyAntriList();
+            MyAntriList.get().listen(findViewById(R.id.lyt_antri));
         }
         else {
             txt_name.setText("Masuk | Daftar");
             txt_email.setText("");
             img_photo.setImageResource(R.drawable.ic_person_default);
             clearMyPlace();
-            clearMyAntriList();
+//            clearMyAntriList();
         }
     }
 
@@ -273,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initList() {
         NearbyPlacesList.get().init((RecyclerView)findViewById(R.id.rcv_nearby));
+        MyAntriList.get().init((RecyclerView)findViewById(R.id.rcv_antrian));
     }
 
     private void initMap() {

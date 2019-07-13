@@ -42,7 +42,7 @@
         <service
             android:name=".AppService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <receiver
             android:name=".AppRestart"
@@ -50,6 +50,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </receiver>
@@ -57,8 +58,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -83,17 +84,18 @@
         <activity
             android:name="id.co.fxcorp.signin.SignUpActivity"
             android:label="DAFTAR" />
-        <activity android:name="id.co.fxcorp.barcode.QrCodeScannerActivity"></activity>
-
+        <activity android:name="id.co.fxcorp.barcode.QrCodeScannerActivity" />
 
         <receiver
             android:name=".AppConnection"
-            android:label="NetworkChangeReceiver" >
+            android:label="NetworkChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <activity android:name="id.co.fxcorp.message.MessagingActivity"></activity>
     </application>
 
 </manifest>
