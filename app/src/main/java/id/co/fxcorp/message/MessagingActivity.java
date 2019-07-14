@@ -1,21 +1,40 @@
 package id.co.fxcorp.message;
 
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.LeadingMarginSpan;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Query;
 
@@ -27,6 +46,7 @@ import id.co.fxcorp.ngantri.R;
 import id.co.fxcorp.ngantri.SimpleRecyclerAdapter;
 import id.co.fxcorp.ngantri.SimpleRecyclerVH;
 import id.co.fxcorp.util.DateUtil;
+import id.co.fxcorp.util.Dpi;
 
 public class MessagingActivity extends AppCompatActivity {
 
@@ -39,6 +59,20 @@ public class MessagingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.messaging_activity);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayUseLogoEnabled(true);
+            Glide.with(this).load(getIntent().getStringExtra("thumb")).apply(new RequestOptions().circleCrop())
+                    .into(new SimpleTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                            getSupportActionBar().setIcon(resource);
+                        }
+                    });
+        }
+
+
+
         setTitle(getIntent().getStringExtra("title"));
         mGroup  = getIntent().getStringExtra("group");
         mNumber = getIntent().getLongExtra("number", 0l);
@@ -49,6 +83,19 @@ public class MessagingActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        //noinspection SimplifiableIfStatement
+        if (id == android.R.id.home) {
+            onBackPressed();
+        }
+        return false;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         unobserveChat();
@@ -56,7 +103,9 @@ public class MessagingActivity extends AppCompatActivity {
 
     private void initComposer() {
         final EditText edt_text = findViewById(R.id.edt_text);
-        FloatingActionButton btn_send = findViewById(R.id.btn_send);
+
+        final FloatingActionButton btn_send = findViewById(R.id.btn_send);
+        btn_send.setEnabled(false);
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,7 +130,30 @@ public class MessagingActivity extends AppCompatActivity {
 
                 ChatModel chat = model.clone();
                 chat.status = ChatModel.STATUS_DELIVERED;
-                ChatDB.insert(chat);
+                ChatDB.insert(chat).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(MessagingActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "", e);
+                    }
+                });
+            }
+        });
+
+        edt_text.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                btn_send.setEnabled(editable.toString().trim().length() != 0);
             }
         });
     }
@@ -93,6 +165,10 @@ public class MessagingActivity extends AppCompatActivity {
         rcvw = findViewById(R.id.rcv_list);
         rcvw_layout_manager = (LinearLayoutManager) rcvw.getLayoutManager();
         rcvw.setAdapter(mAdapter = new SimpleRecyclerAdapter<ChatModel>(R.layout.messaging_adapter_left, R.layout.messaging_adapter_right) {
+
+            private int[] NAME_COLOURS = new int[]{R.color.name_1, R.color.name_2, R.color.name_3,
+                    R.color.name_4, R.color.name_5, R.color.name_6,
+                    R.color.name_7, R.color.name_8, R.color.name_9, R.color.name_10};
 
             @Override
             public int getItemViewType(int position) {
@@ -109,24 +185,34 @@ public class MessagingActivity extends AppCompatActivity {
                 try {
                     TextView  txt_name = holder.itemView.findViewById(R.id.txt_name);
                     TextView  txt_text = holder.itemView.findViewById(R.id.txt_text);
-                    TextView  txt_number = holder.itemView.findViewById(R.id.txt_number);
                     TextView  txt_time = holder.itemView.findViewById(R.id.txt_time);
                     ImageView img_image = holder.itemView.findViewById(R.id.img_image);
-                    LinearLayout lyt_text = holder.itemView.findViewById(R.id.lyt_text);
+                    View      vw_angle  = holder.itemView.findViewById(R.id.vw_angle);
 
                     txt_time  .setText(DateUtil.formatTime(value.created_time));
-                    if (txt_name != null) {
-                        txt_name  .setText(value.name);
-                    }
 
-                    if (txt_number != null) {
-                        if (value.number == 0l) {
-                            txt_number.setText("");
-                            txt_number.setVisibility(View.GONE);
+                    int prev = position + 1;
+                    if (prev < DATA.size() && DATA.get(prev).userid.equals(value.userid)) {
+                        vw_angle.setVisibility(View.INVISIBLE);
+                        holder.itemView.setPadding(0, 6, 0, 0);
+                        if (txt_name != null) {
+                            txt_name  .setText("");
+                            txt_name  .setVisibility(View.GONE);
                         }
-                        else {
-                            txt_number.setText("No. " + value.number);
-                            txt_number.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        vw_angle.setVisibility(View.VISIBLE);
+                        holder.itemView.setPadding(0, 30, 0, 0);
+                        if (txt_name != null) {
+                            if (value.number == 0) {
+                                txt_name  .setText(value.name);
+                                txt_name.setTextColor(getResources().getColor(R.color.colorAccentLight));
+                            }
+                            else {
+                                txt_name  .setText(value.number + " | " + value.name);
+                                txt_name.setTextColor(getResources().getColor(NAME_COLOURS[Long.valueOf(value.number).intValue() % NAME_COLOURS.length]));
+                            }
+                            txt_name  .setVisibility(View.VISIBLE);
                         }
                     }
 
@@ -135,7 +221,20 @@ public class MessagingActivity extends AppCompatActivity {
                         txt_text.setVisibility(View.GONE);
                     }
                     else {
-                        txt_text.setText(value.text);
+                        SpannableStringBuilder span = new SpannableStringBuilder();
+                        span.append(value.text);
+                        String space = "";
+                        if (txt_time.getText().length() > 5) {
+                            space = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
+                        }
+                        else {
+                            space = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
+                        }
+                        if (value.userid.equals(UserDB.MySELF.id)) {
+                            space += "&#160;&#160;&#160;&#160;";
+                        }
+                        span.append(Html.fromHtml(space));
+                        txt_text.setText(span);
                         txt_text.setVisibility(View.VISIBLE);
                     }
 
@@ -154,13 +253,6 @@ public class MessagingActivity extends AppCompatActivity {
                         }
                         else {
                             txt_time.setCompoundDrawablesWithIntrinsicBounds(0 , 0, R.drawable.ic_delivered, 0);
-                        }
-
-                        if (value.text != null && value.text.length() < 30) {
-                            lyt_text.setOrientation(LinearLayout.HORIZONTAL);
-                        }
-                        else {
-                            lyt_text.setOrientation(LinearLayout.VERTICAL);
                         }
                     }
                 } catch (Exception e) {

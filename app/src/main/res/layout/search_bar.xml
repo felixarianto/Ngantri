@@ -24,7 +24,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize">
+            android:layout_height="48dp">
 
             <ImageButton
                 android:id="@+id/btn_menu"
@@ -52,8 +52,8 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:srcCompat="@drawable/ic_qrcode"
                     android:scaleType="fitCenter"
-                    android:tint="@color/grey_20"
-                    android:padding="8dp"/>
+                    android:tint="@color/grey_40"
+                    android:padding="10dp"/>
 
             </android.support.v7.widget.CardView>
 

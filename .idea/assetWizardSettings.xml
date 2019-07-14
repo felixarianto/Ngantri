@@ -81,7 +81,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/home/febri/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/notification/ic_airline_seat_recline_normal_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/home/febri/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_cancel_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -92,7 +92,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="9d9b9b" />
-                            <entry key="outputName" value="ic_seat" />
+                            <entry key="outputName" value="ic_cancel" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="$USER_HOME$" />
                           </map>

@@ -2,42 +2,40 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="2dp">
+
+    <View
+        android:id="@+id/vw_angle"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignLeft="@+id/crd_lyt"
+        android:layout_alignTop="@+id/crd_lyt"
+        android:background="#FFFFFF"/>
 
     <android.support.v7.widget.CardView
         android:id="@+id/crd_lyt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="100dp"
-        android:layout_marginLeft="24dp"
-        app:cardCornerRadius="8dp"
+        android:layout_marginLeft="8dp"
+        app:cardCornerRadius="10dp"
         app:cardElevation="0dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp"
-            android:paddingBottom="6dp"
-            android:paddingLeft="9dp"
-            android:paddingRight="9dp"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/lyt_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/txt_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="No. "
-                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:layout_alignRight="@+id/crd_lyt"
-                    android:layout_below="@+id/crd_lyt"
-                    android:layout_toRightOf="@+id/txt_time"
-                    android:gravity="right"/>
+                android:paddingTop="4dp"
+                android:paddingBottom="6dp"
+                android:paddingLeft="9dp"
+                android:paddingRight="9dp"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/txt_name"
@@ -45,22 +43,14 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textColor="@color/colorAccentLight"
-                    android:text="Sender Name"
+                    android:text="Sender"
                     android:ellipsize="end"
                     android:maxLines="1"/>
 
-            </LinearLayout>
-
-
-            <ImageView
-                android:id="@+id/img_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/img_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
 
                 <TextView
                     android:id="@+id/txt_text"
@@ -70,26 +60,25 @@
                     android:gravity="center_vertical"
                     android:textColor="#000000"
                     android:visibility="visible"
-                    android:text="ASDDDADA"/>
-
-                <TextView
-                    android:id="@+id/txt_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:text="00:00"
-                    android:paddingLeft="20dp"
-                    android:layout_gravity="right|bottom"/>
+                    android:text="Text"/>
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/txt_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:text="00:00"
+                android:textColor="@color/grey_60"
+                android:gravity="right"
+                android:layout_alignRight="@+id/lyt_content"
+                android:layout_alignBottom="@+id/lyt_content"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="6dp"/>
 
-        </LinearLayout>
+        </RelativeLayout>
 
     </android.support.v7.widget.CardView>
-
-
-
-
 
 </RelativeLayout>

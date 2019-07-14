@@ -9,8 +9,8 @@
 
     <android.support.v7.widget.CardView
         android:id="@+id/crd_photo"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_margin="4dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="0dp">
@@ -44,11 +44,26 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                 android:gravity="center"
-                android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="00:00"/>
+
+
+            <TextView
+                android:id="@+id/txt_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Hari ini"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_type"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                />
 
             <TextView
                 android:id="@+id/txt_name"
@@ -59,7 +74,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Nama Tempat"
-                android:layout_toLeftOf="@+id/txt_time"/>
+                android:layout_below="@+id/txt_type"/>
 
         </RelativeLayout>
 
@@ -74,74 +89,37 @@
             android:text="Jl. ...."
             android:visibility="visible"/>
 
-        <TextView
-            android:id="@+id/txt_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No."
-            android:singleLine="true"
-            android:ellipsize="start"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textSize="24sp"
-            android:gravity="center_vertical"/>
+
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp">
-
-            <Button
-                android:id="@+id/btn_loc"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
-                android:drawableLeft="@drawable/ic_near_me"
-                android:drawableTint="@color/colorPrimary"
-                android:textColor="@color/selector_primary"
-                android:text="Lokasi"
-                android:textSize="10dp"
-                android:textAlignment="textStart"
-                android:drawablePadding="12dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:background="@android:color/transparent"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:textAllCaps="false"/>
-
-            <Button
-                android:id="@+id/btn_forum"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:drawableLeft="@drawable/ic_forum"
-                android:drawableTint="@color/colorPrimary"
-                android:textColor="@color/selector_primary"
-                android:text="Chat"
-                android:textSize="10dp"
-                android:textAlignment="textStart"
-                android:drawablePadding="12dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:background="@android:color/transparent"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:textAllCaps="false"
-                android:layout_toRightOf="@+id/btn_loc"/>
-
+            android:layout_height="wrap_content">
 
             <ImageButton
                 android:id="@+id/btn_more"
                 android:layout_width="40dp"
-                android:layout_height="28dp"
-                android:cropToPadding="true"
-                android:padding="4dp"
+                android:layout_height="32dp"
+                android:padding="6dp"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_more_horiz"
-                android:tint="@color/selector_primary"
-                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_more_vert"
+                android:tint="@color/grey_40"
+                android:background="?selectableItemBackgroundBorderless"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                />
+                android:layout_marginRight="8dp"
+                android:alpha="0.5"/>
 
+            <TextView
+                android:id="@+id/txt_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No."
+                android:singleLine="true"
+                android:ellipsize="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="24sp"
+                android:gravity="center_vertical"
+                android:layout_toLeftOf="@+id/btn_more"/>
         </RelativeLayout>
 
     </LinearLayout>

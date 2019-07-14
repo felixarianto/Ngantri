@@ -84,6 +84,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:layout_marginBottom="2dp"
                     android:paddingTop="16dp"
                     android:paddingBottom="16dp"
                     android:paddingLeft="10dp"
@@ -92,7 +93,8 @@
                     android:textStyle="normal"
                     android:text="AMBIL ANTRIAN"
                     android:textColor="#FFFF"
-                    android:backgroundTint="@color/colorPrimaryDark"/>
+                    android:background="@drawable/btn_round"
+                    android:backgroundTint="@color/btn_primary"/>
 
             </LinearLayout>
 

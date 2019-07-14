@@ -80,7 +80,8 @@ public class Portal2Activity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), MessagingActivity.class);
                 intent.putExtra("title",  mPlace.getName() + " " + DateUtil.formatDate(System.currentTimeMillis()));
-                intent.putExtra("group",  DateUtil.formatDateReverse(System.currentTimeMillis()));
+                intent.putExtra("thumb",  mPlace.getPhoto());
+                intent.putExtra("group",  mPlace.getPlaceId() + "-" + DateUtil.formatDateReverse(System.currentTimeMillis()));
                 intent.putExtra("number", 0l);
                 view.getContext().startActivity(intent);
             }

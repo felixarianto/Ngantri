@@ -2,7 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/blue_grey_50"
+    android:focusableInTouchMode="true">
 
     <RelativeLayout
         android:id="@+id/rly_composer"
@@ -10,15 +12,18 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/btn_send"
         android:layout_alignParentBottom="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="6dp"
         >
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="1px"
             android:foregroundGravity="bottom">
 
@@ -29,11 +34,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:maxLines="12"
-                android:minHeight="52dp"
+                android:minHeight="48dp"
                 android:background="@android:color/transparent"
                 android:paddingRight="4dp"
-                android:paddingBottom="4dp"
-                android:paddingTop="4dp"
                 android:hint="Ketik pesan"
                 android:scrollbars="vertical"
                 />
@@ -50,21 +53,27 @@
         app:srcCompat="@drawable/ic_attach"
         android:background="?selectableItemBackgroundBorderless"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="4dp"
+        android:layout_marginLeft="14dp"
         android:layout_marginBottom="12dp"
         />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_send"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        app:backgroundTint="@color/colorPrimary"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:backgroundTint="@color/btn_primary"
         app:srcCompat="@drawable/ic_send"
+        app:fabSize="normal"
+        android:scaleType="center"
+        app:elevation="1px"
+        app:useCompatPadding="false"
+        android:cropToPadding="false"
+        android:padding="1dp"
         android:tint="#FFFFFF"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginTop="8dp"/>
 
     <android.support.v7.widget.RecyclerView
@@ -72,6 +81,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/rly_composer"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:reverseLayout="true">
     </android.support.v7.widget.RecyclerView>

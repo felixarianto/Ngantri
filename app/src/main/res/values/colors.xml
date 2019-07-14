@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#1693A5</color>
-    <color name="colorPrimaryDark">#0B8C8F</color>
-    <color name="colorPrimaryLight">#ADD8C7</color>
+    <color name="colorPrimary">#00a5bc</color>
+    <color name="colorPrimaryDark">#00a5bc</color>
+    <color name="colorPrimaryLight">#63d0f2</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorAccentDark">#F50057</color>
     <color name="colorAccentLight">#FF80AB</color>
@@ -26,7 +26,7 @@
     <color name="overlay_light_70">#B3FFFFFF</color>
     <color name="overlay_light_80">#CCFFFFFF</color>
     <color name="overlay_light_90">#E6FFFFFF</color>
-    <color name="overlay_light_blue_300">#504FC3F7</color>
+    <color name="overlay_light_blue_300">#9ae0f7</color>
 
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#8c8c8c</color>
@@ -317,4 +317,16 @@
     <color name="grey_800">#424242</color>
     <color name="grey_900">#212121</color>
     <color name="grey_1000">#1a1a1a</color>
+
+    <color name="name_1">#5C6BC0</color>
+    <color name="name_2">#3abdc1</color>
+    <color name="name_3">#95d5d5</color>
+    <color name="name_4">#BA68C8</color>
+    <color name="name_5">#FFEE58</color>
+    <color name="name_6">#c49a6c</color>
+    <color name="name_7">#5fd35f</color>
+    <color name="name_8">#8080ff</color>
+    <color name="name_9">#ff2a2a</color>
+    <color name="name_10">#f15a29</color>
+
 </resources>

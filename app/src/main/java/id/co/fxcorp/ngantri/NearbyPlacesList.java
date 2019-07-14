@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -52,7 +54,8 @@ public class NearbyPlacesList {
                 txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
                 txt_address    .setText(place.getString(PlaceModel.ADDRESS));
 
-                Glide.with(img_photo).load(place.getPhoto()).into(img_photo);
+                Glide.with(img_photo).load(place.getPhoto()).apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
+                     .into(img_photo);
 
                 List<String> workhour = (List<String>) place.get(PlaceModel.WORK_HOUR);
                 if (workhour != null) {
@@ -87,7 +90,7 @@ public class NearbyPlacesList {
     private Query              mLastQuery;
     private ChildEventListener mLastQueryListener;
     private String mLastGPlaceId;
-    public void show(LatLng latlng) {
+    public void listen(LatLng latlng) {
         String g_placeid = PlaceDB.toGPlace(latlng);
         if (mLastGPlaceId != null && mLastGPlaceId.equals(g_placeid)) {
             return;
@@ -100,6 +103,8 @@ public class NearbyPlacesList {
 
         mNearbyAdapter.DATA.clear();
         mNearbyAdapter.notifyDataSetChanged();
+
+        Log.d(TAG, "listen");
 
         mLastQuery = PlaceDB.getNearby(latlng);
         mLastQuery.addChildEventListener(mLastQueryListener = new ChildEventListener() {
@@ -156,6 +161,16 @@ public class NearbyPlacesList {
 
             }
         });
+    }
+
+    public void release() {
+        mLastGPlaceId = "";
+        if (mLastQueryListener != null) {
+            mLastQuery.removeEventListener(mLastQueryListener);
+            mLastQueryListener = null;
+            mLastQuery = null;
+        }
+        mInstances = null;
     }
 
 }

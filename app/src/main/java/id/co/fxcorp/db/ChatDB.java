@@ -17,7 +17,7 @@ public class ChatDB {
 
     public static Query getLastChat(String group, int limit) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CHAT);
-        return ref.child(group).orderByChild("created_time").limitToFirst(limit);
+        return ref.child(group).orderByChild("created_time").limitToLast(limit);
     }
 
 

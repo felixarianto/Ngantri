@@ -11,11 +11,11 @@ public class Dpi {
     }
 
     public static int px(int dp){
-        return (int) (dp * dpi + 0.5f);
+        return (int) ((dp * dpi) + 0.5f);
     }
 
     public static int dp(int px){
-        return (int) (px / dpi + 0.5f);
+        return (int) ((px / dpi) + 0.5f);
     }
 
 }

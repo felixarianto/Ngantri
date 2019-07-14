@@ -25,7 +25,7 @@ public class DateUtil {
     }
 
     public static String formatDateReverse(long time) {
-        return new SimpleDateFormat("yyyy/MM/dd").format(time);
+        return new SimpleDateFormat("yyMMdd").format(time);
     }
 
 }
