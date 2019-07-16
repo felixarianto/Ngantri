@@ -111,7 +111,7 @@ public class PlacePickerActivity extends AppCompatActivity implements OnMapReady
                     mLatLng = null;
                     lyt_place.setVisibility(View.INVISIBLE);
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) img_pin.getLayoutParams();
-                    lp.bottomMargin = Dpi.dp(80);
+                    lp.bottomMargin = Dpi.px(80);
                     img_pin.requestLayout();
                     TransitionManager.beginDelayedTransition((ViewGroup) img_pin.getParent());
                 } catch (Exception e) {
@@ -125,7 +125,7 @@ public class PlacePickerActivity extends AppCompatActivity implements OnMapReady
             public void onCameraIdle() {
                 try {
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) img_pin.getLayoutParams();
-                    lp.bottomMargin = Dpi.dp(40);
+                    lp.bottomMargin = Dpi.px(40);
                     img_pin.requestLayout();
                     TransitionManager.beginDelayedTransition((ViewGroup) img_pin.getParent());
 

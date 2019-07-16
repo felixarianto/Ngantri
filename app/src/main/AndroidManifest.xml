@@ -39,6 +39,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD0RXc5xsbg2y4FGjQ9u2uTCTx_fvdeG3w" />
 
+        <provider
+            android:name="id.co.fxcorp.util.GenericFileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/path_provider"/>
+        </provider>
+
         <service
             android:name=".AppService"
             android:enabled="true"

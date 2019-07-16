@@ -132,23 +132,48 @@ public class Portal2Activity extends AppCompatActivity {
         AntriDB.getAntriListAtPlace(mPlaceId).addValueEventListener(new ValueEventListener() {
 
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                    while (iterator.hasNext()) {
-                        AntriModel antri = iterator.next().getValue(AntriModel.class);
-                        if (antri != null) {
-                            if (ANTRI_MAP.get(antri.id) == null) {
-                                ANTRI_MAP.put(antri.id, antri);
-                                ANTRI_LIST.add(antri);
-                                mAdapter.notifyDataSetChanged();
-                                Log.d(TAG, "LIST " + ANTRI_LIST.size());
+            public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                            while (iterator.hasNext()) {
+                                AntriModel antri = iterator.next().getValue(AntriModel.class);
+                                if (antri != null) {
+                                    if (ANTRI_MAP.get(antri.id) == null) {
+                                        ANTRI_MAP.put(antri.id, antri);
+                                        int idx = 0;
+                                        for (int i = 0; i < ANTRI_LIST.size(); i++) {
+                                            if (ANTRI_LIST.get(i).number > antri.number) {
+                                                break;
+                                            }
+                                            idx++;
+                                        }
+                                        ANTRI_LIST.add(idx, antri);
+                                    }
+                                    else {
+                                        ANTRI_MAP.put(antri.id, antri);
+                                    }
+                                }
                             }
+
+                            vw_pager.getHandler().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Log.d(TAG, "LIST " + ANTRI_LIST.size());
+                                        mAdapter.notifyDataSetChanged();
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "", e);
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(TAG, "", e);
                         }
                     }
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
-                }
+                }.start();
             }
 
             @Override

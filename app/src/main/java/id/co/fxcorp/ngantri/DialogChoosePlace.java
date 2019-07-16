@@ -52,8 +52,8 @@ public class DialogChoosePlace {
         Drawable drw_edit = context.getResources().getDrawable(R.drawable.ic_edit);
         drw_edit.setColorFilter(context.getResources().getColor(R.color.orange_400), PorterDuff.Mode.SRC_ATOP);
         txt_name.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null , drw_edit, null);
-        txt_name.setCompoundDrawablePadding(Dpi.dp(10));
-        txt_name.setPadding(Dpi.dp(40), 0, 0 ,0);
+        txt_name.setCompoundDrawablePadding(Dpi.px(10));
+        txt_name.setPadding(Dpi.px(40), 0, 0 ,0);
 
         builder.setView(view);
         final AlertDialog dialog = builder.create();

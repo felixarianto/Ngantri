@@ -30,10 +30,6 @@
                 android:id="@+id/lyt_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:paddingBottom="6dp"
-                android:paddingLeft="9dp"
-                android:paddingRight="9dp"
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
@@ -44,13 +40,65 @@
                     android:textStyle="bold"
                     android:textColor="@color/colorAccentLight"
                     android:text="Sender"
+                    android:paddingTop="4dp"
+                    android:paddingLeft="9dp"
+                    android:paddingRight="9dp"
                     android:ellipsize="end"
                     android:maxLines="1"/>
 
-                <ImageView
-                    android:id="@+id/img_image"
+                <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardElevation="0dp"
+                        app:cardCornerRadius="8dp"
+                        android:layout_margin="3dp">
+
+                        <ImageView
+                            android:id="@+id/img_square"
+                            android:layout_width="300dp"
+                            android:layout_height="300dp"
+                            android:maxHeight="200dp"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone"
+                            android:background="@color/grey_5"
+                            />
+
+                        <ImageView
+                            android:id="@+id/img_landscape"
+                            android:layout_width="300dp"
+                            android:layout_height="180dp"
+                            android:maxHeight="200dp"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone"
+                            android:background="@color/grey_5"
+                            />
+
+                        <ImageView
+                            android:id="@+id/img_potrait"
+                            android:layout_width="230dp"
+                            android:layout_height="300dp"
+                            android:maxHeight="200dp"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone"
+                            android:background="@color/grey_5"
+                            />
+
+                    </android.support.v7.widget.CardView>
+
+                    <ProgressBar
+                        android:id="@+id/prg_image"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_centerInParent="true"
+                        android:indeterminateTint="#60cccccc"
+                        android:visibility="gone"
+                        />
+
+                </RelativeLayout>
 
                 <TextView
                     android:id="@+id/txt_text"
@@ -60,25 +108,41 @@
                     android:gravity="center_vertical"
                     android:textColor="#000000"
                     android:visibility="visible"
+                    android:paddingLeft="9dp"
+                    android:paddingBottom="6dp"
+                    android:paddingRight="9dp"
                     android:text="Text"/>
 
             </LinearLayout>
 
             <TextView
                 android:id="@+id/txt_time"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                 android:text="00:00"
-                android:textColor="@color/grey_60"
                 android:gravity="right"
                 android:layout_alignRight="@+id/lyt_content"
                 android:layout_alignBottom="@+id/lyt_content"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="6dp"/>
+                android:paddingRight="8dp"
+                android:paddingBottom="6dp"
+                android:textColor="@color/messaging_time"
+                android:background="@drawable/messaging_bg_time"
+                android:enabled="false"/>
 
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
+
+    <LinearLayout
+        android:id="@+id/lyt_selected"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/crd_lyt"
+        android:layout_alignTop="@+id/crd_lyt"
+        android:orientation="vertical"
+        android:background="#307986CB"
+        android:visibility="invisible"
+        ></LinearLayout>
 
 </RelativeLayout>

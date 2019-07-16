@@ -36,7 +36,9 @@
                 android:maxLines="12"
                 android:minHeight="48dp"
                 android:background="@android:color/transparent"
-                android:paddingRight="4dp"
+                android:paddingRight="6dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
                 android:hint="Ketik pesan"
                 android:scrollbars="vertical"
                 />
@@ -50,11 +52,12 @@
         android:id="@+id/btn_attach"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        app:srcCompat="@drawable/ic_attach"
+        app:srcCompat="@drawable/ic_camera"
         android:background="?selectableItemBackgroundBorderless"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="14dp"
         android:layout_marginBottom="12dp"
+        android:alpha="0.5"
         />
 
     <android.support.design.widget.FloatingActionButton
@@ -76,16 +79,25 @@
         android:layout_marginBottom="10dp"
         android:layout_marginTop="8dp"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rcv_list"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swp_lyt"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/rly_composer"
-        android:paddingBottom="8dp"
-        android:clipToPadding="false"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        app:reverseLayout="true">
-    </android.support.v7.widget.RecyclerView>
+        android:layout_above="@+id/rly_composer">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rcv_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            app:reverseLayout="true">
+        </android.support.v7.widget.RecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
 
 
 </RelativeLayout>

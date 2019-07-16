@@ -20,5 +20,10 @@ public class ChatDB {
         return ref.child(group).orderByChild("created_time").limitToLast(limit);
     }
 
+    public static Query getMoreChat(String group, long created_time,int limit) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CHAT);
+        return ref.child(group).orderByChild("created_time").endAt(created_time).limitToLast(limit);
+    }
+
 
 }

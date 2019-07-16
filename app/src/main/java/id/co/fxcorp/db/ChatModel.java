@@ -10,6 +10,7 @@ public class ChatModel {
     public long   number;
     public String text;
     public String image;
+    public long   image_scale;
     public long status;
 
     public final static long STATUS_SEND = 0;
@@ -25,8 +26,22 @@ public class ChatModel {
         newObj.number = number;
         newObj.text   = text;
         newObj.image  = image;
+        newObj.image_scale  = image_scale;
         newObj.status = status;
         return newObj;
+    }
+
+    public void copyFrom(ChatModel ref) {
+        id     = ref.id;
+        group  = ref.group;
+        created_time = ref.created_time;
+        userid = ref.userid;
+        name   = ref.name;
+        number = ref.number;
+        text   = ref.text;
+        image  = ref.image;
+        image_scale  = ref.image_scale;
+        status = ref.status;
     }
 
 }

@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -231,8 +232,6 @@ public class PlaceActivity extends AppCompatActivity {
                                 if (!task.isSuccessful()) {
                                     throw task.getException();
                                 }
-
-                                // Continue with the task to get the download URL
                                 return ref.getDownloadUrl();
                             }
                         }).addOnCompleteListener(new OnCompleteListener<Uri>() {
@@ -249,7 +248,6 @@ public class PlaceActivity extends AppCompatActivity {
                             }
                         });
                     } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-//                        Exception error = result.getError();
                     }
                     break;
 

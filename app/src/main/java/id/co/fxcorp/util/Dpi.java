@@ -14,8 +14,4 @@ public class Dpi {
         return (int) ((dp * dpi) + 0.5f);
     }
 
-    public static int dp(int px){
-        return (int) ((px / dpi) + 0.5f);
-    }
-
 }
