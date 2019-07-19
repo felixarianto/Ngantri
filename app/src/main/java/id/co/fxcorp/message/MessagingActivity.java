@@ -202,10 +202,11 @@ public class MessagingActivity extends AppCompatActivity {
     ChatAdapter mAdapter;
     private void initList() {
         rcvw = findViewById(R.id.rcv_list);
-        rcvw.setItemViewCacheSize(20);
+        rcvw.setDrawingCacheEnabled(true);
         rcvw.setHasFixedSize(true);
         rcvw_layout_manager = (LinearLayoutManager) rcvw.getLayoutManager();
-        rcvw_layout_manager.setInitialPrefetchItemCount(7);
+        rcvw.setItemViewCacheSize(20);
+        rcvw_layout_manager.setInitialPrefetchItemCount(10);
         mAdapter = new ChatAdapter();
         mAdapter.setHasStableIds(true);
         rcvw.setAdapter(mAdapter);
@@ -215,80 +216,111 @@ public class MessagingActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 try {
-                    long sc_time = mAdapter.DATA.isEmpty() ? 0 : mAdapter.DATA.get(mAdapter.DATA.size() - 1).created_time;
-                    ChatDB.getMoreChat(mGroup, sc_time, 30).addListenerForSingleValueEvent(new ValueEventListener() {
+                    loadMore();
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+        });
 
-                        @Override
-                        public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
-                            try {
-                                new Thread() {
-                                    @Override
-                                    public void run() {
-                                        Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                                        final ArrayList<ChatHolder.ItemHolder> adding = new ArrayList<>();
-                                        while (iterator.hasNext()) {
-                                            ChatModel chat = iterator.next().getValue(ChatModel.class);
-                                            if (chat != null) {
-                                                boolean skip = false;
-                                                for (int i = mAdapter.DATA.size() - 1; i >= 0; i--) {
-                                                    if (mAdapter.DATA.get(i).id.equals(chat.id)) {
-                                                        skip = true;
-                                                        break;
-                                                    }
-                                                    else if (mAdapter.DATA.get(i).created_time > chat.created_time) {
-                                                        break;
-                                                    }
-                                                }
-                                                if (skip) {
-                                                    continue;
-                                                }
-                                                adding.add(0, new ChatHolder.ItemHolder(MessagingActivity.this, chat));
-                                            }
-                                        }
+        rcvw.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
-                                        mAdapter.DATA.addAll(adding);
-                                        final int ecx = mAdapter.DATA.size() - 1;
-                                        final int scx = mAdapter.DATA.size() - adding.size();
-                                        rcvw.getHandler().post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    if (adding.isEmpty()) {
-                                                        swp_lyt.setRefreshing(false);
-                                                        return;
-                                                    }
-                                                    if (scx > 0) {
-                                                        if (mAdapter.DATA.get(scx).userid.equals(mAdapter.DATA.get(scx - 1).userid)) {
-                                                            mAdapter.notifyItemChanged(scx - 1);
-                                                        }
-                                                    }
-                                                    mAdapter.notifyItemRangeInserted(scx, ecx);
-                                                    swp_lyt.setRefreshing(false);
-                                                } catch (Exception e) {
-                                                    Log.e(TAG, "", e);
-                                                }
-                                            }
-                                        });
-                                    }
-                                }.start();
-
-                            } catch (Exception e) {
-                                Log.e(TAG, "", e);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                try {
+                    if (rcvw_layout_manager.findLastVisibleItemPosition() > (mAdapter.DATA.size() - 50)) {
+                        loadMore();
+                    }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
             }
         });
     }
+
+    private boolean iLoadingMore;
+    private void loadMore() {
+        if (iLoadingMore) {
+            return;
+        }
+        iLoadingMore = true;
+        try {
+            long sc_time = mAdapter.DATA.isEmpty() ? 0 : mAdapter.DATA.get(mAdapter.DATA.size() - 1).created_time;
+            ChatDB.getMoreChat(mGroup, sc_time, 30).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
+                    try {
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                                final ArrayList<ChatHolder.ItemHolder> adding = new ArrayList<>();
+                                while (iterator.hasNext()) {
+                                    ChatModel chat = iterator.next().getValue(ChatModel.class);
+                                    if (chat != null) {
+                                        boolean skip = false;
+                                        for (int i = mAdapter.DATA.size() - 1; i >= 0; i--) {
+                                            if (mAdapter.DATA.get(i).id.equals(chat.id)) {
+                                                skip = true;
+                                                break;
+                                            }
+                                            else if (mAdapter.DATA.get(i).created_time > chat.created_time) {
+                                                break;
+                                            }
+                                        }
+                                        if (skip) {
+                                            continue;
+                                        }
+                                        adding.add(0, new ChatHolder.ItemHolder(MessagingActivity.this, chat));
+                                    }
+                                }
+
+                                mAdapter.DATA.addAll(adding);
+                                final int ecx = mAdapter.DATA.size() - 1;
+                                final int scx = mAdapter.DATA.size() - adding.size();
+                                rcvw.getHandler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            if (adding.isEmpty()) {
+                                                swp_lyt.setRefreshing(false);
+                                                iLoadingMore = false;
+                                                return;
+                                            }
+                                            if (scx > 0) {
+                                                if (mAdapter.DATA.get(scx).userid.equals(mAdapter.DATA.get(scx - 1).userid)) {
+                                                    mAdapter.notifyItemChanged(scx - 1);
+                                                }
+                                            }
+                                            mAdapter.notifyItemRangeInserted(scx, ecx);
+                                            swp_lyt.setRefreshing(false);
+                                            iLoadingMore = false;
+                                        } catch (Exception e) {
+                                            Log.e(TAG, "", e);
+                                        }
+                                    }
+                                });
+                            }
+                        }.start();
+
+                    } catch (Exception e) {
+                        Log.e(TAG, "", e);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+        } catch (Exception e) {
+            Log.e(TAG, "", e);
+        }
+    }
+
+
 
     Query mChatQuery;
     ChildEvent mChatEventListener;
@@ -384,10 +416,10 @@ public class MessagingActivity extends AppCompatActivity {
 
         double scale = result.getCropRect().height() / result.getCropRect().width();
 
-        if (scale > 1.3) {
+        if (scale > 1.2) {
             model.image_scale = 1;
         }
-        else if (scale < 0.3) {
+        else if (scale < 0.2) {
             model.image_scale = 2;
         }
 

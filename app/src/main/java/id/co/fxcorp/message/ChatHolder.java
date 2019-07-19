@@ -28,9 +28,10 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     ImageView img_square;
     ImageView img_landscape;
     ImageView img_potrait ;
-    View      vw_angle;
     ProgressBar prg_image;
+    View      bg_time;
     View      lyt_selected;
+    View      vw_buble;
 
     public ChatHolder(View itemView) {
         super(itemView);
@@ -40,14 +41,10 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         img_square = itemView.findViewById(R.id.img_square);
         img_landscape = itemView.findViewById(R.id.img_landscape);
         img_potrait = itemView.findViewById(R.id.img_potrait);
-        vw_angle = itemView.findViewById(R.id.vw_angle);
+        bg_time    = itemView.findViewById(R.id.bg_time);
         prg_image = itemView.findViewById(R.id.prg_image);
         lyt_selected = itemView.findViewById(R.id.lyt_selected);
-    }
-
-    public void bind(ItemHolder item) {
-
-
+        vw_buble    = itemView.findViewById(R.id.vw_buble);
     }
 
     public static class ItemHolder extends ChatModel {
@@ -72,10 +69,10 @@ public class ChatHolder extends RecyclerView.ViewHolder {
                     space = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
                 }
                 else {
-                    space = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
+                    space = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;";
                 }
                 if (ref.userid.equals(UserDB.MySELF.id)) {
-                    space += "&#160;&#160;&#160;&#160;";
+                    space += "&#160;&#160;";
                 }
                 text_span.append(Html.fromHtml(space));
             }

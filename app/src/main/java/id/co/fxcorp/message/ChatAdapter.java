@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -57,23 +58,64 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
         }
     }
 
+    ArrayList<ChatHolder> holder_0;
+    ArrayList<ChatHolder> holder_1;
+
     @NonNull
     @Override
     public ChatHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        long t0 = System.currentTimeMillis(), t1;
+
+        if (holder_0 == null) {
+            holder_0 = new ArrayList<>();
+            holder_1 = new ArrayList<>();
+
+            holder_0.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null)));
+            holder_0.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null)));
+            holder_0.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null)));
+            holder_0.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null)));
+            holder_0.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null)));
+            holder_0.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null)));
+
+            holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
+            holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
+            holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
+            holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
+            holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
+            holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
+        }
+
         if (viewType == 1) {
+            if (!holder_1.isEmpty()) {
+                t1 = System.currentTimeMillis();
+                Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
+                return holder_1.remove(0);
+            }
+            t1 = System.currentTimeMillis();
+            Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
             return new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null));
         }
         else {
+            if (!holder_0.isEmpty()) {
+                t1 = System.currentTimeMillis();
+                Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
+                return holder_0.remove(0);
+            }
+
+            t1 = System.currentTimeMillis();
+            Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
             return new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null));
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ChatHolder holder, int position) {
+        long t0 = System.currentTimeMillis(), t1;
         final ChatHolder.ItemHolder item = DATA.get(position);
+        int next = position - 1;
         int prev = position + 1;
         if (prev < DATA.size() && DATA.get(prev).userid.equals(item.userid)) {
-            holder.vw_angle.setVisibility(View.INVISIBLE);
+            holder.vw_buble.setEnabled(false);
             holder.itemView.setPadding(0, 6, 0, 0);
             if (holder.txt_name != null) {
                 holder.txt_name  .setText("");
@@ -81,7 +123,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             }
         }
         else {
-            holder.vw_angle.setVisibility(View.VISIBLE);
+            holder.vw_buble.setEnabled(true);
             holder.itemView.setPadding(0, 30, 0, 0);
             if (holder.txt_name != null) {
                 if (item.number == 0) {
@@ -115,6 +157,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             }
         }
         if (TextUtils.isEmpty(item.image)) {
+            holder.bg_time.setVisibility(View.GONE);
             holder.txt_time.setEnabled(true);
             holder.img_landscape.setImageResource(0);
             holder.img_landscape.setVisibility(View.GONE);
@@ -126,6 +169,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             holder.prg_image.setVisibility(View.GONE);
         }
         else {
+            holder.bg_time.setVisibility(View.VISIBLE);
             holder.txt_time.setEnabled(false);
 
             ImageView img_image;
@@ -218,6 +262,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
                 view.setVisibility(View.INVISIBLE);
             }
         });
+
+        t1 = System.currentTimeMillis();
+        Log.w(TAG, "onBindViewHolder " + (t1 - t0));
     }
 
 }
