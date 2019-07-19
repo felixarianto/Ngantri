@@ -8,6 +8,7 @@ public class ChatModel {
     public String userid;
     public String name;
     public long   number;
+    public long   call;
     public String text;
     public String image;
     public long   image_scale;

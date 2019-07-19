@@ -23,13 +23,18 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
 import id.co.fxcorp.db.AntriModel;
+import id.co.fxcorp.db.ChatModel;
+import id.co.fxcorp.message.MessagingActivity;
+import id.co.fxcorp.util.DateUtil;
 
 public class Notif {
 
     private static final String TAG = "Notif";
     private static final String CHANNEL = "CHANNEL_3";
+    private static final String CHANNEL_CHAT = "Chat";
     public static final int ID_CALL = 1;
     public static final int ID_INCOMING = 2;
+    public static final int ID_CHAT = 3;
 
     public static void notifyCall(Context context, AntriModel antri) {
         try {
@@ -72,7 +77,6 @@ public class Notif {
             }
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
-            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT
             );
@@ -134,7 +138,6 @@ public class Notif {
             }
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
-            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT
             );
@@ -194,7 +197,6 @@ public class Notif {
             }
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
-            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT
             );
@@ -256,7 +258,6 @@ public class Notif {
             }
 
             Intent notifyIntent = new Intent(context, MainActivity.class);
-            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT
             );
@@ -270,6 +271,81 @@ public class Notif {
             inboxStyle.setSummaryText("No. " + antri.number + " - " + antri.place_name);
 
             manager.notify(ID_INCOMING, builder.build());
+        } catch (Exception e) {
+            Log.e(TAG, "", e);
+        }
+    }
+
+    public static void notifyChat(Context context, ChatModel chat, String place_name, String place_thumb, String date) {
+        try {
+            NotificationManager manager = (NotificationManager) context.getSystemService(Activity.NOTIFICATION_SERVICE);
+
+            Uri sound_uri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.sound_chat);
+            Notification.Builder builder = new Notification.Builder(context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = manager.getNotificationChannel(CHANNEL_CHAT);
+                if (channel == null) {
+                    int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                    channel = new NotificationChannel(CHANNEL_CHAT, "Pesan Masuk", importance);
+                    channel.setVibrationPattern(new long[]{200l, 500l});
+                    channel.setSound(sound_uri, new AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT).build());
+                    manager.createNotificationChannel(channel);
+                }
+                builder.setChannelId(CHANNEL_CHAT);
+            }
+            else {
+                builder.setSound(sound_uri);
+            }
+
+            Notification.InboxStyle inboxStyle = new Notification.InboxStyle();
+
+            if (chat.call > 0) {
+                inboxStyle.setBigContentTitle("Panggilan Ke- " + chat.call);
+                builder.setContentTitle("Panggilan Ke- " + chat.call);
+                builder.setNumber(Long.valueOf(chat.call).intValue());
+            }
+            else {
+                builder.setContentTitle("Pesan Masuk");
+                inboxStyle.setBigContentTitle("Pesan Masuk");
+            }
+
+
+            builder.setSmallIcon(R.drawable.ic_ngantri_notif);
+            builder.setAutoCancel(true);
+
+            Intent intent = new Intent(context, MessagingActivity.class);
+            intent.putExtra("title",  place_name + " " + date);
+            intent.putExtra("thumb",  place_thumb);
+            intent.putExtra("group",  chat.group);
+            intent.putExtra("number", -1);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+            builder.setContentIntent(pendingIntent);
+
+            inboxStyle.setBuilder(builder);
+
+            if (!TextUtils.isEmpty(chat.image)) {
+                builder.setContentText(chat.name + ": Mengirim Gambar");
+                inboxStyle.addLine(chat.name + ": Mengirim Gambar");
+            }
+            if (!TextUtils.isEmpty(chat.text)) {
+                builder.setContentText(chat.name + ": " + chat.text);
+                inboxStyle.addLine(chat.name + ": " + chat.text);
+            }
+
+            if (chat.number > 0) {
+                inboxStyle.setSummaryText(place_name + " | " + "No. " + chat.number);
+            }
+            else {
+                inboxStyle.setSummaryText(place_name + " | ");
+            }
+
+            manager.notify(ID_CHAT, builder.build());
         } catch (Exception e) {
             Log.e(TAG, "", e);
         }

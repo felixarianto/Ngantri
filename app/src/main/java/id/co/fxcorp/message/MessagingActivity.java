@@ -402,8 +402,6 @@ public class MessagingActivity extends AppCompatActivity {
             return;
         }
 
-
-
         ChatModel model = new ChatModel();
         model.userid = UserDB.MySELF.id;
         model.name   = UserDB.MySELF.name;

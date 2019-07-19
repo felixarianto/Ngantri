@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,8 +27,14 @@ import com.google.firebase.database.ValueEventListener;
 
 import id.co.fxcorp.db.AntriDB;
 import id.co.fxcorp.db.AntriModel;
+import id.co.fxcorp.db.ChatDB;
+import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
+import id.co.fxcorp.db.UserDB;
+import id.co.fxcorp.message.ChatHolder;
+import id.co.fxcorp.message.MessagingActivity;
+import id.co.fxcorp.util.DateUtil;
 
 public class PortalFragment extends Fragment {
 
@@ -48,6 +55,7 @@ public class PortalFragment extends Fragment {
     long   mNumber = 0;
     String mName = "";
     String mPhoto = "";
+    String mGroup = "";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +63,7 @@ public class PortalFragment extends Fragment {
         mNumber  = getArguments() != null ? getArguments().getLong("number") : 0;
         mName    = getArguments() != null ? getArguments().getString("name") : "";
         mPhoto   = getArguments() != null ? getArguments().getString("photo") : "";
+        mGroup   = mPlaceId + "-" + DateUtil.formatDateReverse(System.currentTimeMillis());
     }
 
     private TextToSpeech mTextToSpeech;
@@ -184,13 +193,36 @@ public class PortalFragment extends Fragment {
                             mTextToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
                         }
                         PlaceDB.setNumberCurrent(mPlaceId, mAntri.number);
+                        sendChat(callQty, text);
                     }
                     else {
                         Toast.makeText(getContext(), "Koneksi bermasalah", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
+
         }
+    }
+
+    private void sendChat(long callQty, String msg) {
+        ChatModel model = new ChatModel();
+        model.userid = UserDB.MySELF.id;
+        model.name   = UserDB.MySELF.name;
+        model.created_time = System.currentTimeMillis();
+        model.group = mGroup;
+        model.id    = model.userid + "-" + Long.toHexString(model.created_time);
+        model.text  = msg;
+        model.call  = callQty;
+        model.number = mNumber;
+        model.status = ChatModel.STATUS_DELIVERED;
+
+        ChatDB.insert(model).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "", e);
+            }
+        });
     }
 
     private void end() {

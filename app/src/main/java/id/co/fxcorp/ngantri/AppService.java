@@ -8,25 +8,33 @@ import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import id.co.fxcorp.db.AntriDB;
 import id.co.fxcorp.db.AntriModel;
+import id.co.fxcorp.db.ChatDB;
+import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.ChildEvent;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
 import id.co.fxcorp.db.Prefs;
 import id.co.fxcorp.db.UserDB;
 import id.co.fxcorp.db.UserModel;
+import id.co.fxcorp.message.ChatHolder;
+import id.co.fxcorp.message.MessagingActivity;
+import id.co.fxcorp.util.DateUtil;
 
 public class AppService extends Service {
 
@@ -74,6 +82,46 @@ public class AppService extends Service {
         signIn(AppService.this, email_password[0], email_password[1], null);
     }
 
+    /*
+     *
+     */
+    public static boolean isConnected(Context context) {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            if (null != activeNetwork && activeNetwork.isConnected()) {
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "", e);
+        }
+        return false;
+    }
+    public interface Callback {
+        void onIncomingPost(PostId p_post_id, String p_data);
+    }
+    private static ArrayList<Callback> CALLBACKS = new ArrayList<>();
+    public static void registerPostCallback(Callback callback) {
+        if (!CALLBACKS.contains(callback)) {
+            CALLBACKS.add(callback);
+        }
+    }
+    public static void unregisterPostCallback(Callback callback) {
+        CALLBACKS.remove(callback);
+    }
+    public static void post(PostId p_post_id, String p_data) {
+        for (Callback callback : CALLBACKS) {
+            try {
+                callback.onIncomingPost(p_post_id, p_data);
+            } catch (Exception e) {
+                Log.e(TAG, "", e);
+            }
+        }
+    }
+    public enum PostId {SIGN_UP, SIGN_IN, SIGN_OUT}
+    /*
+     *
+     */
     public static void signUp(Context context, UserModel user) {
         Prefs.setAccount(context, user.email, user.password);
         UserDB.MySELF  = user;
@@ -150,6 +198,8 @@ public class AppService extends Service {
                             }.start();
 
                         }
+                        String group = antri.place_id + "-" + DateUtil.formatDateReverse(System.currentTimeMillis());
+                        observeChat(context, group, antri.place_name, antri.place_photo, DateUtil.formatDate(System.currentTimeMillis()));
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
@@ -248,6 +298,8 @@ public class AppService extends Service {
                     };
                     AntriDB.getAntriListAtPlace(place.getPlaceId()).addChildEventListener(event);
                     PLACE_ANTRI_EVENTS.put(place.getPlaceId(), event);
+                    String group = place.getPlaceId() + "-" + DateUtil.formatDateReverse(System.currentTimeMillis());
+                    observeChat(context, group, place.getName(), place.getPhoto(), DateUtil.formatDate(System.currentTimeMillis()));
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
@@ -271,43 +323,40 @@ public class AppService extends Service {
         post(PostId.SIGN_OUT, "");
     }
 
-    public static boolean isConnected(Context context) {
-        try {
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            if (null != activeNetwork && activeNetwork.isConnected()) {
-                return true;
+
+    private static HashSet<String> OBSERVED = new HashSet<>();
+    private static Query mChatQuery;
+    private static ChildEvent mChatEventListener;
+    private static void observeChat(final Context context, String mGroup, final String place_name, final String place_photo, final String date) {
+        if (OBSERVED.contains(mGroup)) {
+            return;
+        }
+        OBSERVED.add(mGroup);
+        final long treshold = System.currentTimeMillis() - 3000;
+        mChatQuery = ChatDB.getLastChat(mGroup, 1);
+        mChatQuery.addChildEventListener(mChatEventListener = new ChildEvent() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                try {
+                    ChatModel chat = dataSnapshot.getValue(ChatModel.class);
+                    if (chat != null) {
+                        if (!chat.userid.equals(UserDB.MySELF.id)) {
+                            if (chat.created_time > treshold) {
+                                Notif.notifyChat(context, chat, place_name, place_photo, date);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
             }
-        } catch (Exception e) {
-            Log.e(TAG, "", e);
-        }
-        return false;
+        });
     }
-
-    public interface Callback {
-        void onIncomingPost(PostId p_post_id, String p_data);
-    }
-
-    private static ArrayList<Callback> CALLBACKS = new ArrayList<>();
-    public static void registerPostCallback(Callback callback) {
-        if (!CALLBACKS.contains(callback)) {
-            CALLBACKS.add(callback);
+    private static void unobserveChat() {
+        if (mChatQuery != null) {
+            mChatQuery.removeEventListener(mChatEventListener);
+            mChatEventListener = null;
         }
     }
-    public static void unregisterPostCallback(Callback callback) {
-        CALLBACKS.remove(callback);
-    }
-    public static void post(PostId p_post_id, String p_data) {
-        for (Callback callback : CALLBACKS) {
-            try {
-                callback.onIncomingPost(p_post_id, p_data);
-            } catch (Exception e) {
-                Log.e(TAG, "", e);
-            }
-        }
-    }
-
-
-    public enum PostId {SIGN_UP, SIGN_IN, SIGN_OUT}
 
 }

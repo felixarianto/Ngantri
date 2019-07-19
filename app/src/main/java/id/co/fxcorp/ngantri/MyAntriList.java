@@ -168,9 +168,11 @@ public class MyAntriList {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable final String prevChildKey) {
                 try {
                     AntriModel antri = dataSnapshot.getValue(AntriModel.class);
-                    mAntriAdapter.DATA.add(0, antri);
-                    mAntriAdapter.notifyItemInserted(0);
-                    updateVisibility(view);
+                    if (!antri.isComplete()) {
+                        mAntriAdapter.DATA.add(0, antri);
+                        mAntriAdapter.notifyItemInserted(0);
+                        updateVisibility(view);
+                    }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
@@ -182,8 +184,14 @@ public class MyAntriList {
                     AntriModel antri = dataSnapshot.getValue(AntriModel.class);
                     for (int i = 0; i < mAntriAdapter.DATA.size(); i++) {
                         if (mAntriAdapter.DATA.get(i).id.equals(antri.id)) {
-                            mAntriAdapter.DATA.set(i, antri);
-                            mAntriAdapter.notifyItemChanged(i);
+                            if (!antri.isComplete()) {
+                                mAntriAdapter.DATA.set(i, antri);
+                                mAntriAdapter.notifyItemChanged(i);
+                            }
+                            else {
+                                mAntriAdapter.DATA.remove(i);
+                                mAntriAdapter.notifyItemRemoved(i);
+                            }
                             break;
                         }
                     }

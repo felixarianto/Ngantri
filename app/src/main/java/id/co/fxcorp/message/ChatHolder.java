@@ -25,6 +25,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
     TextView txt_name;
     TextView  txt_text;
     TextView  txt_time;
+    TextView  txt_notif;
     ImageView img_square;
     ImageView img_landscape;
     ImageView img_potrait ;
@@ -38,6 +39,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         txt_name = itemView.findViewById(R.id.txt_name);
         txt_text = itemView.findViewById(R.id.txt_text);
         txt_time = itemView.findViewById(R.id.txt_time);
+        txt_notif = itemView.findViewById(R.id.txt_notif);
         img_square = itemView.findViewById(R.id.img_square);
         img_landscape = itemView.findViewById(R.id.img_landscape);
         img_potrait = itemView.findViewById(R.id.img_potrait);

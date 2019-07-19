@@ -137,6 +137,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             }
         }
 
+        if (item.call > 0) {
+            holder.txt_notif.setText("Panggilan ke - " + item.call);
+            holder.txt_notif.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.txt_notif.setVisibility(View.GONE);
+        }
 
         holder.txt_time.setText(item.time);
         if (item.text_span != null) {
