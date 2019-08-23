@@ -49,8 +49,6 @@ import com.google.firebase.database.Query;
 import java.util.concurrent.ConcurrentHashMap;
 
 import id.co.fxcorp.barcode.QrCodeScannerActivity;
-import id.co.fxcorp.db.AntriDB;
-import id.co.fxcorp.db.AntriModel;
 import id.co.fxcorp.db.ChildEvent;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
@@ -270,9 +268,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private CardView crd_gps;
     private void initBottomSheet() {
-        crd_gps = findViewById(R.id.crd_gps);
-
         LinearLayout bottom_sheet = findViewById(R.id.bottom_sheet);
+        crd_gps = bottom_sheet.findViewById(R.id.crd_gps);
         BottomSheetBehavior bottom_sheet_behaviour = BottomSheetBehavior.from(bottom_sheet);
         bottom_sheet_behaviour.setPeekHeight(400);
         bottom_sheet_behaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -450,6 +447,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         va.start();
         lastPulseAnimator = va;
 
+        crd_gps.setVisibility(View.GONE);
         NearbyPlacesList.get().listen(latlng);
 
     }

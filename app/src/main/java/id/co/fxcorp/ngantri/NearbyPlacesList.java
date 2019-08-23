@@ -16,9 +16,13 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.Iterator;
 import java.util.List;
 
+import id.co.fxcorp.db.AntriDB;
+import id.co.fxcorp.db.AntriModel;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
 import id.co.fxcorp.db.UserDB;
@@ -79,7 +83,28 @@ public class NearbyPlacesList {
                             DialogChoosePlace.open(rcv.getContext(), place);
                         }
                         else {
-                            DialogChoosePlace.take(rcv.getContext(), place);
+                            AntriDB.getMyAntriList().addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    AntriModel exist = null;
+                                    Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                                    while (iterator.hasNext()) {
+                                        AntriModel model = iterator.next().getValue(AntriModel.class);
+                                        if (!model.isComplete()) {
+                                            if (model.place_id.equals(place.getPlaceId())) {
+                                                exist = model;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    DialogChoosePlace.take(rcv.getContext(), place, exist);
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
                         }
                     }
                 });

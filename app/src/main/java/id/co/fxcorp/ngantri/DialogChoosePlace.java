@@ -1,11 +1,10 @@
 package id.co.fxcorp.ngantri;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -13,6 +12,8 @@ import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,32 +29,30 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
 import java.util.Iterator;
 
 import id.co.fxcorp.db.AntriDB;
 import id.co.fxcorp.db.AntriModel;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
-import id.co.fxcorp.util.Dpi;
+import id.co.fxcorp.message.MessagingActivity;
+import id.co.fxcorp.util.DateUtil;
 
 public class DialogChoosePlace {
 
     public static AlertDialog open(final Context context, final PlaceModel place) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_choose_place, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_place, null);
         ImageView img_photo = view.findViewById(R.id.img_photo);
         TextView txt_name = view.findViewById(R.id.txt_name);
         TextView txt_description = view.findViewById(R.id.txt_description);
         TextView txt_info = view.findViewById(R.id.txt_info);
-        final AppCompatButton btn_negative = view.findViewById(R.id.btn_negative);
-        final AppCompatButton btn_positive = view.findViewById(R.id.btn_positive);
-
-        Drawable drw_edit = context.getResources().getDrawable(R.drawable.ic_edit);
-        drw_edit.setColorFilter(context.getResources().getColor(R.color.orange_400), PorterDuff.Mode.SRC_ATOP);
-        txt_name.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null , drw_edit, null);
-        txt_name.setCompoundDrawablePadding(Dpi.px(10));
-        txt_name.setPadding(Dpi.px(40), 0, 0 ,0);
+        final View btn_close  = view.findViewById(R.id.btn_close);
+        final View btn_forum  = view.findViewById(R.id.btn_forum);
+        final View btn_portal = view.findViewById(R.id.btn_portal);
+        final View btn_home   = view.findViewById(R.id.btn_home);
 
         builder.setView(view);
         final AlertDialog dialog = builder.create();
@@ -63,13 +62,6 @@ public class DialogChoosePlace {
              .load(place.getPhoto())
              .into(img_photo);
 
-        if (place.isOnline()) {
-            btn_positive.setText("LANJUTKAN");
-        }
-        else {
-            btn_positive.setText("BUKA ANTRIAN");
-        }
-
         txt_name       .setText(place.getString(PlaceModel.NAME));
         txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
 
@@ -77,10 +69,12 @@ public class DialogChoosePlace {
             txt_info.setText("Tidak ada antrian");
         }
         else {
-            txt_info.setText(place.getNumberQty() + " antrian");
+            txt_info.setText(place.getNumberQty() + " Antrian");
         }
 
-        txt_name.setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.lyt_open).setVisibility(View.VISIBLE);
+
+        btn_home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -96,7 +90,7 @@ public class DialogChoosePlace {
             }
         });
 
-        view.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
+        btn_close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -107,50 +101,32 @@ public class DialogChoosePlace {
             }
         });
 
-        final DialogInterface.OnClickListener positiveClick = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                ((Activity) context).startActivity(new Intent(context, Portal2Activity.class)
-                        .putExtra(PlaceModel.PLACE_ID, place.getPlaceId())
-                        .putExtra(PlaceModel.NAME, place.getName())
-                );
-            }
-        };
-
-        view.findViewById(R.id.btn_positive).setOnClickListener(new View.OnClickListener() {
+        btn_portal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
                 try {
-                    if (place.isOnline()) {
-                        dialog.dismiss();
-                        if (positiveClick != null) {
-                            positiveClick.onClick(dialog, view.getId());
-                        }
-                    }
-                    else {
-                        PlaceDB.setOnline(place.getPlaceId(), true)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                dialog.dismiss();
-                                if (positiveClick != null) {
-                                    positiveClick.onClick(dialog, view.getId());
-                                }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(context, "Koneksi bermasalah, mohon coba lagi", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
+                    dialog.dismiss();
+                    context.startActivity(new Intent(context, Portal2Activity.class)
+                            .putExtra(PlaceModel.PLACE_ID, place.getPlaceId())
+                            .putExtra(PlaceModel.NAME, place.getName())
+                    );
                 } catch (Exception e) {
                     Log.e("DialogChoosePlace", "", e);
                 }
             }
         });
         dialog.show();
+
+        btn_forum.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), MessagingActivity.class);
+                intent.putExtra("title",  place.getName());
+                intent.putExtra("thumb",  place.getPhoto());
+                intent.putExtra("group",  place.getPlaceId());
+                view.getContext().startActivity(intent);
+            }
+        });
         return dialog;
     }
 
@@ -206,22 +182,10 @@ public class DialogChoosePlace {
                             while (iterator.hasNext()) {
                                 iterator.next().getRef().removeValue();
                             }
-                            PlaceDB.setOnline(place.getPlaceId(), false)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    dialog.dismiss();
-                                    if (positiveClick != null) {
-                                        positiveClick.onClick(dialog, view.getId());
-                                    }
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(context, "Koneksi bermasalah, mohon coba lagi", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                            dialog.dismiss();
+                            if (positiveClick != null) {
+                                positiveClick.onClick(dialog, view.getId());
+                            }
                         }
 
                         @Override
@@ -238,16 +202,20 @@ public class DialogChoosePlace {
         return dialog;
     }
 
-    public static AlertDialog take(final Context context, final PlaceModel place) {
+    public static AlertDialog take(final Context context, final PlaceModel place, final AntriModel exist) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_choose_place, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_place, null);
         ImageView img_photo = view.findViewById(R.id.img_photo);
         final TextView txt_name = view.findViewById(R.id.txt_name);
         final TextView txt_description = view.findViewById(R.id.txt_description);
         final TextView txt_info = view.findViewById(R.id.txt_info);
-        final AppCompatButton btn_positive = view.findViewById(R.id.btn_positive);
+        final Button btn_chat  = view.findViewById(R.id.btn_chat);
+        final Button btn_antri = view.findViewById(R.id.btn_antri);
+        final Button btn_book  = view.findViewById(R.id.btn_book);
 
         builder.setView(view);
+
+        view.findViewById(R.id.lyt_take).setVisibility(View.VISIBLE);
 
         final AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -255,10 +223,6 @@ public class DialogChoosePlace {
         Glide.with(img_photo)
                 .load(place.getPhoto())
                 .into(img_photo);
-
-        btn_positive.setText("AMBIL ANTRIAN");
-        txt_name    .setText(place.getString(PlaceModel.NAME));
-        txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
 
         long number   = place.getNumberQty();
         long duration = place.getLong(PlaceModel.DURATION);
@@ -273,6 +237,45 @@ public class DialogChoosePlace {
                 txt_info.setText(number + " antrian | " + (duration * number) + " menit");
             }
         }
+
+
+        btn_book.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Calendar cal = Calendar.getInstance();
+                DatePickerDialog pickerDialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int date) {
+                        cal.set(Calendar.YEAR, year);
+                        cal.set(Calendar.MONTH, month);
+                        cal.set(Calendar.DATE, date);
+
+                        insertAntrian(place
+                        , cal.getTimeInMillis()
+                        , new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                dialog.dismiss();
+                            }
+                        }
+                        , new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                btn_antri.setEnabled(true);
+                                Toast.makeText(context, "Koneksi berasalah, Mohon coba lagi", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }, cal.get(Calendar.YEAR) , cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
+                pickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+                pickerDialog.show();
+            }
+        });
+
+        txt_name       .setText(place.getString(PlaceModel.NAME));
+        txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
+
+
         view.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -283,71 +286,24 @@ public class DialogChoosePlace {
                 }
             }
         });
-        view.findViewById(R.id.btn_positive).setOnClickListener(new View.OnClickListener() {
+        btn_antri.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    btn_positive.setEnabled(false);
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PlaceDB.PLACE);
-                    ref.child(place.getPlaceId()).runTransaction(new Transaction.Handler() {
-                        @NonNull
+                    btn_antri.setEnabled(false);
+                    insertAntrian(place
+                    , System.currentTimeMillis()
+                    , new OnSuccessListener<Void>() {
                         @Override
-                        public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                            PlaceModel place = new PlaceModel(mutableData);
-                            if (place == null) {
-                                return Transaction.success(mutableData);
-                            }
-                            long new_number = place.getNumberLast() + 1;
-                            if (place.getNumberCurrent() == 0) {
-                                place.put(PlaceModel.NUMBER_CURRENT, new_number);
-                            }
-                            place.put(PlaceModel.NUMBER_LAST, new_number);
-                            place.put(PlaceModel.NUMBER_QTY, place.getNumberQty() + 1);
-                            mutableData.setValue(place);
-                            return Transaction.success(mutableData);
+                        public void onSuccess(Void aVoid) {
+                            dialog.dismiss();
                         }
-
+                    }
+                    , new OnFailureListener() {
                         @Override
-                        public void onComplete(@Nullable DatabaseError databaseError, boolean commited, @Nullable DataSnapshot dataSnapshot) {
-                            if (commited) {
-                                PlaceModel place = new PlaceModel(dataSnapshot);
-                                long new_number = place.getNumberLast();
-
-                                final AntriModel antri = new AntriModel();
-                                antri.cust_id   = AppInfo.getUserId();
-                                antri.cust_name = AppInfo.getUserName();
-                                antri.cust_photo = AppInfo.getUserPhoto();
-                                antri.number = new_number;
-                                antri.place_id   = place.getPlaceId();
-                                antri.place_name = place.getName();
-                                antri.place_photo = place.getPhoto();
-                                antri.created_time = System.currentTimeMillis();
-
-                                AntriDB.insert(antri).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        txt_info.setText("Nomor Anda: " + antri.number + "");
-                                        btn_positive.setText("OK");
-                                        btn_positive.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                dialog.dismiss();
-                                            }
-                                        });
-                                        btn_positive.setEnabled(true);
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        btn_positive.setEnabled(true);
-                                        Toast.makeText(context, "Koneksi berasalah, Mohon coba lagi", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                            else {
-                                btn_positive.setEnabled(true);
-                                Toast.makeText(context, "Koneksi berasalah, Mohon coba lagi", Toast.LENGTH_SHORT).show();
-                            }
+                        public void onFailure(@NonNull Exception e) {
+                            btn_antri.setEnabled(true);
+                            Toast.makeText(context, "Koneksi berasalah, Mohon coba lagi", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } catch (Exception e) {
@@ -355,10 +311,62 @@ public class DialogChoosePlace {
                 }
             }
         });
+        btn_chat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), MessagingActivity.class);
+                intent.putExtra("title",  place.getName());
+                intent.putExtra("thumb",  place.getPhoto());
+                intent.putExtra("group",  place.getPlaceId());
+                view.getContext().startActivity(intent);
+            }
+        });
         dialog.show();
         return dialog;
     }
 
+    private static void insertAntrian(final PlaceModel place, final long time, final OnSuccessListener onSuccessListener, final OnFailureListener onFailureListener) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PlaceDB.PLACE);
+        ref.child(place.getPlaceId()).child(PlaceDB.SEQNO).child(DateUtil.formatDateReverse(time)).runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                Long new_number = mutableData.getValue(Long.class);
+                if (new_number == null) {
+                    new_number = 1l;
+                }
+                else {
+                    new_number++;
+                }
+                mutableData.setValue(new_number);
+                return Transaction.success(mutableData);
+            }
 
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean commited, @Nullable DataSnapshot dataSnapshot) {
+                if (commited) {
+                    long  new_number = dataSnapshot.getValue(Long.class);
+                    final AntriModel antri = new AntriModel();
+                    antri.cust_id    = AppInfo.getUserId();
+                    antri.cust_name  = AppInfo.getUserName();
+                    antri.cust_photo = AppInfo.getUserPhoto();
+                    antri.number     = new_number;
+                    antri.place_id   = place.getPlaceId();
+                    antri.place_name = place.getName();
+                    antri.place_photo = place.getPhoto();
+                    antri.time = time;
+
+                    if (DateUtil.isSameDay(time, System.currentTimeMillis())) {
+                        PlaceDB.setNumberQty(place.getPlaceId(), place.getNumberQty() + 1, new_number);
+                    }
+
+                    AntriDB.insert(antri).addOnSuccessListener(onSuccessListener).addOnFailureListener(onFailureListener);
+                }
+                else {
+                    onFailureListener.onFailure(databaseError.toException());
+                }
+            }
+        });
+    }
 
 }

@@ -30,11 +30,7 @@ import id.co.fxcorp.db.AntriModel;
 import id.co.fxcorp.db.ChatDB;
 import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.PlaceDB;
-import id.co.fxcorp.db.PlaceModel;
 import id.co.fxcorp.db.UserDB;
-import id.co.fxcorp.message.ChatHolder;
-import id.co.fxcorp.message.MessagingActivity;
-import id.co.fxcorp.util.DateUtil;
 
 public class PortalFragment extends Fragment {
 
@@ -63,7 +59,7 @@ public class PortalFragment extends Fragment {
         mNumber  = getArguments() != null ? getArguments().getLong("number") : 0;
         mName    = getArguments() != null ? getArguments().getString("name") : "";
         mPhoto   = getArguments() != null ? getArguments().getString("photo") : "";
-        mGroup   = mPlaceId + "-" + DateUtil.formatDateReverse(System.currentTimeMillis());
+        mGroup   = mPlaceId;
     }
 
     private TextToSpeech mTextToSpeech;
@@ -138,7 +134,7 @@ public class PortalFragment extends Fragment {
         @Override
         public void run() {
             try {
-                mLoadQuery = AntriDB.getItem(mPlaceId, mNumber);
+                mLoadQuery = AntriDB.getItem(System.currentTimeMillis(), mPlaceId, mNumber);
                 mLoadQuery.addValueEventListener(mLoadEventListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -227,7 +223,7 @@ public class PortalFragment extends Fragment {
 
     private void end() {
         if (mAntri != null) {
-            AntriDB.setStatus(mAntri.id, "Selesai")
+            AntriDB.setComplete(mAntri.place_id, mAntri.id, "Selesai")
             .addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -236,25 +232,6 @@ public class PortalFragment extends Fragment {
                         btn_end .setVisibility(View.VISIBLE);
                         btn_end.setText("Selesai");
                         btn_end.setEnabled(false);
-
-                        PlaceDB.getPlace(mPlaceId).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                try {
-                                    PlaceModel place = new PlaceModel(dataSnapshot);
-                                    PlaceDB.setNumberQty(mPlaceId, place.getNumberQty() - 1);
-                                } catch (Exception e) {
-                                    Log.e(TAG, "", e);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-
 
                     }
                     else {

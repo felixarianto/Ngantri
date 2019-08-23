@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.firebase.FirebaseApp;
@@ -20,7 +19,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import id.co.fxcorp.db.AntriDB;
 import id.co.fxcorp.db.AntriModel;
@@ -32,8 +30,6 @@ import id.co.fxcorp.db.PlaceModel;
 import id.co.fxcorp.db.Prefs;
 import id.co.fxcorp.db.UserDB;
 import id.co.fxcorp.db.UserModel;
-import id.co.fxcorp.message.ChatHolder;
-import id.co.fxcorp.message.MessagingActivity;
 import id.co.fxcorp.util.DateUtil;
 
 public class AppService extends Service {
@@ -198,8 +194,7 @@ public class AppService extends Service {
                             }.start();
 
                         }
-                        String group = antri.place_id + "-" + DateUtil.formatDateReverse(System.currentTimeMillis());
-                        observeChat(context, group, antri.place_name, antri.place_photo, DateUtil.formatDate(System.currentTimeMillis()));
+                        observeChat(context, antri.place_id, antri.place_name, antri.place_photo, DateUtil.formatDate(System.currentTimeMillis()));
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
@@ -283,7 +278,7 @@ public class AppService extends Service {
                         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                             try {
                                 final AntriModel antri = dataSnapshot.getValue(AntriModel.class);
-                                if (antri.status == null && ((System.currentTimeMillis() - antri.created_time) < 3000)) {
+                                if (antri.status == null && ((System.currentTimeMillis() - antri.time) < 3000)) {
                                     new Thread() {
                                         @Override
                                         public void run() {
@@ -298,8 +293,7 @@ public class AppService extends Service {
                     };
                     AntriDB.getAntriListAtPlace(place.getPlaceId()).addChildEventListener(event);
                     PLACE_ANTRI_EVENTS.put(place.getPlaceId(), event);
-                    String group = place.getPlaceId() + "-" + DateUtil.formatDateReverse(System.currentTimeMillis());
-                    observeChat(context, group, place.getName(), place.getPhoto(), DateUtil.formatDate(System.currentTimeMillis()));
+                    observeChat(context, place.getPlaceId(), place.getName(), place.getPhoto(), DateUtil.formatDate(System.currentTimeMillis()));
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }

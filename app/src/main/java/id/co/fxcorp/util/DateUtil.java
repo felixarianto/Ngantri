@@ -1,5 +1,7 @@
 package id.co.fxcorp.util;
 
+import android.text.format.DateUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -27,5 +29,19 @@ public class DateUtil {
     public static String formatDateReverse(long time) {
         return new SimpleDateFormat("yyMMdd").format(time);
     }
+
+    public static boolean isSameDay(long a, long b) {
+        Calendar acal = Calendar.getInstance();
+        Calendar bcal = Calendar.getInstance();
+
+        acal.setTimeInMillis(a);
+        bcal.setTimeInMillis(b);
+
+        return acal.get(Calendar.DAY_OF_YEAR) == bcal.get(Calendar.DAY_OF_YEAR) &&
+               acal.get(Calendar.YEAR) == bcal.get(Calendar.YEAR)
+               ;
+    }
+
+
 
 }

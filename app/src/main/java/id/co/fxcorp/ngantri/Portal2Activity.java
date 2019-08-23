@@ -7,7 +7,6 @@ import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -66,7 +65,7 @@ public class Portal2Activity extends AppCompatActivity {
         txt_info2.setText("");
 
         initPager();
-        initAntrian();
+        initPlace();
 
         mTextToSpeech = new TextToSpeech(Portal2Activity.this, new TextToSpeech.OnInitListener() {
             @Override
@@ -81,8 +80,7 @@ public class Portal2Activity extends AppCompatActivity {
                 Intent intent = new Intent(view.getContext(), MessagingActivity.class);
                 intent.putExtra("title",  mPlace.getName() + " " + DateUtil.formatDate(System.currentTimeMillis()));
                 intent.putExtra("thumb",  mPlace.getPhoto());
-                intent.putExtra("group",  mPlace.getPlaceId() + "-" + DateUtil.formatDateReverse(System.currentTimeMillis()));
-                intent.putExtra("number", 0l);
+                intent.putExtra("group",  mPlace.getPlaceId());
                 view.getContext().startActivity(intent);
             }
         });
@@ -128,8 +126,59 @@ public class Portal2Activity extends AppCompatActivity {
     private TextView txt_info3;
     private CardView crd_bottom;
 
+    private void initPlace() {
+        Query query = PlaceDB.getPlace(mPlaceId);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    PlaceModel place = new PlaceModel(dataSnapshot);
+                    if (place != null) {
+                        mPlace = place;
+                        if (DateUtil.isSameDay(place.getLastOpen(), System.currentTimeMillis())) {
+                            txt_info1.setText("Nomor Terkini : "  + mPlace.getNumberCurrent());
+                            if (mPlace.getNumberCurrent() == 0) {
+                                txt_info2.setText("Antrian Tesisa : 0");
+                            }
+                            else {
+                                txt_info2.setText("Antrian Tersisa : " + mPlace.getNumberQty());
+                            }
+                            txt_info3.setText("Nomor Terakhir : " + mPlace.getNumberLast());
+                            initAntrian();
+                        }
+                        else {
+                            PlaceDB.setLastOpen(place.getPlaceId(), System.currentTimeMillis());
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    long mOpenDay = 0;
+    Query mAntriQuery;
+    ValueEventListener mAntriValueListener;
     private void initAntrian() {
-        AntriDB.getAntriListAtPlace(mPlaceId).addValueEventListener(new ValueEventListener() {
+        if (DateUtil.isSameDay(mOpenDay, System.currentTimeMillis())) {
+            return;
+        }
+
+        if (mAntriQuery != null) {
+            mAntriQuery.removeEventListener(mAntriValueListener);
+        }
+        ANTRI_MAP.clear();
+        ANTRI_LIST.clear();
+
+        mOpenDay    = System.currentTimeMillis();
+        mAntriQuery = AntriDB.getAntriListAtPlace(mPlaceId);
+        mAntriQuery.addValueEventListener(mAntriValueListener = new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
@@ -141,6 +190,9 @@ public class Portal2Activity extends AppCompatActivity {
                             while (iterator.hasNext()) {
                                 AntriModel antri = iterator.next().getValue(AntriModel.class);
                                 if (antri != null) {
+                                    if (!DateUtil.isSameDay(antri.time, mOpenDay)) {
+                                        continue;
+                                    }
                                     if (ANTRI_MAP.get(antri.id) == null) {
                                         ANTRI_MAP.put(antri.id, antri);
                                         int idx = 0;
@@ -181,34 +233,6 @@ public class Portal2Activity extends AppCompatActivity {
 
             }
 
-        });
-
-        Query query = PlaceDB.getPlace(mPlaceId);
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    PlaceModel place = new PlaceModel(dataSnapshot);
-                    if (place != null) {
-                        mPlace = place;
-                        txt_info1.setText("Nomor Terkini : "  + mPlace.getNumberCurrent());
-                        if (mPlace.getNumberCurrent() == 0) {
-                            txt_info2.setText("Antrian Tesisa : 0");
-                        }
-                        else {
-                            txt_info2.setText("Antrian Tersisa : " + mPlace.getNumberQty());
-                        }
-                        txt_info3.setText("Nomor Terakhir : " + mPlace.getNumberLast());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
         });
 
     }

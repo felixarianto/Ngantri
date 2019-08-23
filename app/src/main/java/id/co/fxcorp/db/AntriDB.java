@@ -1,27 +1,37 @@
 package id.co.fxcorp.db;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
+import id.co.fxcorp.util.DateUtil;
+
 public class AntriDB {
 
+    public static final String TAG = "AntriDB";
     public static final String ANTRIAN = "ANTRIAN";
 
-    public static Query getItem(String place_id, long number) {
+    public static Query getItem(long time, String place_id, long number) {
         return FirebaseDatabase.getInstance()
                 .getReference(ANTRIAN)
-                .child(place_id + "-" + number);
+                .child(place_id + "-" + DateUtil.formatDateReverse(time) + "-" + number);
     }
 
     public static Task<Void> insert(AntriModel model) {
-        model.id = model.place_id + "-" + model.number;
+        model.id = model.place_id + "-" + DateUtil.formatDateReverse(model.time) + "-" + model.number;
         return FirebaseDatabase.getInstance()
                 .getReference(ANTRIAN)
-                .child(model.place_id + "-" + model.number).setValue(model);
+                .child(model.id).setValue(model);
     }
 
     public static Query getMyAntriList() {
@@ -44,7 +54,23 @@ public class AntriDB {
         return ref.child(antri_id).updateChildren(map);
     }
 
-    public static Task<Void> setStatus(String antri_id, String status) {
+    public static Task<Void> setComplete(final String place_id, String antri_id, String status) {
+        PlaceDB.getPlace(place_id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    PlaceModel place = new PlaceModel(dataSnapshot);
+                    PlaceDB.setNumberQty(place.getPlaceId(), place.getNumberQty() - 1, place.getNumberLast());
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(ANTRIAN);
         HashMap<String, Object> map = new HashMap<>();
         map.put("status", status);

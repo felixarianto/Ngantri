@@ -23,7 +23,8 @@ public class PlaceModel extends Model {
     public static final String NUMBER_LAST     = "number_last";
     public static final String NUMBER_QTY      = "number_qty";
     public static final String DURATION  = "duration";
-    public static final String PHOTO  = "photo";
+    public static final String PHOTO     = "photo";
+    public static final String LAST_OPEN = "last_open";
 
     public PlaceModel() {
         super();
@@ -128,6 +129,10 @@ public class PlaceModel extends Model {
 
     public final String getPhoto() {
         return getString(PHOTO);
+    }
+
+    public final long getLastOpen() {
+        return getLong(LAST_OPEN);
     }
 
 

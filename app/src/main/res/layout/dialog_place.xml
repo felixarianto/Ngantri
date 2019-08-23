@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/transparent">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="0dp">
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:id="@+id/img_photo"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                />
+
+            <TextView
+                android:id="@+id/txt_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:text="10 Antrian"
+                android:textColor="#FFFFFF"
+                android:background="#5037474F"
+                android:padding="4dp"
+                android:layout_alignBottom="@+id/img_photo"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="12dp"
+                android:textSize="12sp"/>
+
+            <ImageButton
+                android:id="@+id/btn_close"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="12dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/oval_red"
+                android:backgroundTint="#5037474F"
+                app:srcCompat="@drawable/ic_close"
+                android:scaleType="centerInside"
+                android:padding="4dp"
+                android:tint="#FFFFFF"
+                />
+
+            <TextView
+                android:id="@+id/txt_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:text="Place Name"
+                android:layout_below="@+id/img_photo"
+                android:textSize="16sp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                />
+
+
+            <TextView
+                android:id="@+id/txt_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:text="Description Place For User Information"
+                android:layout_below="@+id/txt_name"
+                android:textSize="16sp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                />
+
+            <View
+                android:id="@+id/vw_line"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey_20"
+                android:layout_below="@+id/txt_description"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp"
+                />
+
+            <LinearLayout
+                android:id="@+id/lyt_open"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="3"
+                android:layout_below="@+id/vw_line">
+
+                <ImageButton
+                    android:id="@+id/btn_forum"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_forum"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    android:tint="@color/btn_primary"
+                    />
+
+                <ImageButton
+                    android:id="@+id/btn_portal"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_group"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    android:tint="@color/btn_primary"
+                    />
+
+
+                <ImageButton
+                    android:id="@+id/btn_home"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_home"
+                    android:background="@android:color/transparent"
+                    android:tint="@color/btn_primary"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lyt_take"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="3"
+                android:layout_below="@+id/vw_line">
+
+                <Button
+                    android:id="@+id/btn_chat"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/ic_forum"
+                    android:drawableTint="@color/btn_primary"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
+                    android:tint="@color/btn_primary"
+                    android:text="Chat"
+                    android:textAllCaps="false"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/grey_20"/>
+
+                <Button
+                    android:id="@+id/btn_book"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/ic_date"
+                    android:drawableTint="@color/btn_primary"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
+                    android:text="Booking"
+                    android:textAllCaps="false"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/grey_20"/>
+
+                <Button
+                    android:id="@+id/btn_antri"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/ic_ticket"
+                    android:drawableTint="@color/btn_primary"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
+                    android:tint="@color/btn_primary"
+                    android:text="Antri"
+                    android:textAllCaps="false"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    android:visibility="visible"
+                    />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

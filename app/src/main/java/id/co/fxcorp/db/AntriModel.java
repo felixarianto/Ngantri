@@ -1,5 +1,7 @@
 package id.co.fxcorp.db;
 
+import id.co.fxcorp.util.DateUtil;
+
 public class AntriModel {
 
     public String id;
@@ -13,10 +15,15 @@ public class AntriModel {
     public String place_name;
     public String place_photo;
     public String status;
-    public long   created_time;
+    public long   time;
 
 
     public boolean isComplete() {
-        return status != null && status.equals("Selesai");
+        if (DateUtil.isSameDay(time, System.currentTimeMillis())) {
+        }
+        else if (time < System.currentTimeMillis()) {
+            return true;//Expired
+        }
+        return status != null && status.matches("Selesai|Batal");
     }
 }
