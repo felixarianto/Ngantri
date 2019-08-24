@@ -100,37 +100,64 @@
                 android:weightSum="3"
                 android:layout_below="@+id/vw_line">
 
-                <ImageButton
+                <Button
                     android:id="@+id/btn_forum"
                     android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_forum"
+                    android:drawableTop="@drawable/ic_forum"
+                    android:drawableTint="@color/btn_primary"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
+                    android:tint="@color/btn_primary"
+                    android:text="Chat"
+                    android:textAllCaps="false"
                     android:scaleType="centerInside"
                     android:background="@android:color/transparent"
-                    android:tint="@color/btn_primary"
                     />
 
-                <ImageButton
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/grey_20"/>
+
+                <Button
                     android:id="@+id/btn_portal"
                     android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_group"
+                    android:drawableTop="@drawable/ic_group"
+                    android:drawableTint="@color/btn_primary"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
+                    android:text="Antrian"
+                    android:textAllCaps="false"
                     android:scaleType="centerInside"
                     android:background="@android:color/transparent"
-                    android:tint="@color/btn_primary"
                     />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/grey_20"/>
 
-                <ImageButton
+                <Button
                     android:id="@+id/btn_home"
                     android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_home"
-                    android:background="@android:color/transparent"
+                    android:drawableTop="@drawable/ic_home"
+                    android:drawableTint="@color/btn_primary"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
                     android:tint="@color/btn_primary"
+                    android:text="Profil"
+                    android:textAllCaps="false"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    android:visibility="visible"
                     />
 
             </LinearLayout>
@@ -197,6 +224,55 @@
                     android:padding="10dp"
                     android:tint="@color/btn_primary"
                     android:text="Antri"
+                    android:textAllCaps="false"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    android:visibility="visible"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lyt_cancel"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:layout_below="@+id/vw_line">
+
+                <Button
+                    android:id="@+id/btn_chat2"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/ic_forum"
+                    android:drawableTint="@color/btn_primary"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
+                    android:tint="@color/btn_primary"
+                    android:text="Chat"
+                    android:textAllCaps="false"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/grey_20"/>
+
+                <Button
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/ic_close"
+                    android:drawableTint="@color/btn_red"
+                    android:drawablePadding="4dp"
+                    android:padding="10dp"
+                    android:tint="@color/btn_primary"
+                    android:text="Batalkan"
                     android:textAllCaps="false"
                     android:scaleType="centerInside"
                     android:background="@android:color/transparent"

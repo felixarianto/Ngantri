@@ -1,48 +1,35 @@
 package id.co.fxcorp.message;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Html;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.LeadingMarginSpan;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -55,25 +42,21 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import id.co.fxcorp.db.ChatDB;
 import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.ChildEvent;
 import id.co.fxcorp.db.UserDB;
-import id.co.fxcorp.ngantri.MainActivity;
 import id.co.fxcorp.ngantri.R;
-import id.co.fxcorp.ngantri.SimpleRecyclerAdapter;
-import id.co.fxcorp.ngantri.SimpleRecyclerVH;
 import id.co.fxcorp.storage.Storage;
 import id.co.fxcorp.util.DateUtil;
-import id.co.fxcorp.util.Dpi;
 
 public class MessagingActivity extends AppCompatActivity {
 
@@ -196,18 +179,35 @@ public class MessagingActivity extends AppCompatActivity {
     }
 
 
+    TextView txt_date;
     RecyclerView rcvw;
     SwipeRefreshLayout swp_lyt;
     LinearLayoutManager rcvw_layout_manager;
     ChatAdapter mAdapter;
     private void initList() {
+        txt_date = findViewById(R.id.txt_date);
         rcvw = findViewById(R.id.rcv_list);
         rcvw.setDrawingCacheEnabled(true);
         rcvw.setHasFixedSize(true);
         rcvw_layout_manager = (LinearLayoutManager) rcvw.getLayoutManager();
         rcvw.setItemViewCacheSize(20);
         rcvw_layout_manager.setInitialPrefetchItemCount(10);
-        mAdapter = new ChatAdapter();
+        mAdapter = new ChatAdapter() {
+            @Override
+            public void onSelectedChanged(HashMap<String, ChatHolder.ItemHolder> selected) {
+                if (selected.isEmpty()) {
+                    if (actionMode != null) {
+                        actionMode.finish();
+                    }
+                }
+                else {
+                    if (actionMode != null) {
+                        return;
+                    }
+                    actionMode = ((AppCompatActivity) MessagingActivity.this).startSupportActionMode(actionModeCopyCallback);
+                }
+            }
+        };
         mAdapter.setHasStableIds(true);
         rcvw.setAdapter(mAdapter);
         swp_lyt = findViewById(R.id.swp_lyt);
@@ -228,14 +228,17 @@ public class MessagingActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 try {
-                    if (rcvw_layout_manager.findLastVisibleItemPosition() > (mAdapter.DATA.size() - 50)) {
+                    int last_idx = rcvw_layout_manager.findLastVisibleItemPosition();
+                    if (last_idx > (mAdapter.DATA.size() - 50)) {
                         loadMore();
                     }
+                    txt_date.setText(mAdapter.DATA.get(last_idx).date);
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }
             }
         });
+
     }
 
     private boolean iLoadingMore;
@@ -457,4 +460,79 @@ public class MessagingActivity extends AppCompatActivity {
             }
         });
     }
+
+    private ActionMode actionMode;
+    private ActionMode.Callback actionModeCopyCallback = new ActionMode.Callback() {
+
+        // Called when the action mode is created; startActionMode() was called
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate a menu resource providing context menu items
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.action_copy, menu);
+            return true;
+        }
+
+        // Called each time the action mode is shown. Always called after onCreateActionMode, but
+        // may be called multiple times if the mode is invalidated.
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false; // Return false if nothing is done
+        }
+
+        // Called when the user selects a contextual menu item
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.copy:
+
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            final StringBuilder text = new StringBuilder();
+                            ArrayList<ChatHolder.ItemHolder> list = new ArrayList<>(mAdapter.SELECTED.values());
+                            if (list.size() == 1) {
+                                text.append(list.get(0).text);
+                            }
+                            else {
+                                Collections.sort(list, new Comparator<ChatHolder.ItemHolder>() {
+                                    @Override
+                                    public int compare(ChatHolder.ItemHolder itemHolder, ChatHolder.ItemHolder t1) {
+                                        return itemHolder.created_time > t1.created_time ? -1 : 1;
+                                    }
+                                });
+
+                                for (ChatHolder.ItemHolder item: list) {
+                                    text.append("[").append(item.name).append(DateUtil.formatDateTime(item.created_time)).append("]")
+                                    .append(" ").append(item.text)
+                                    .append("\n");
+                                }
+
+                            }
+
+                            rcvw.getHandler().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(rcvw.getContext().CLIPBOARD_SERVICE);
+                                    ClipData clip = ClipData.newPlainText("Copied Text", text.toString());
+                                    clipboard.setPrimaryClip(clip);
+                                    Toast.makeText(rcvw.getContext(), "Tersalin", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }.start();
+                    mode.finish(); // Action picked, so close the CAB
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        // Called when the user exits the action mode
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            actionMode = null;
+        }
+    };
+
 }

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.UserDB;
 import id.co.fxcorp.ngantri.R;
+import id.co.fxcorp.util.DateUtil;
 import id.co.fxcorp.util.GenericFileProvider;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
@@ -64,8 +65,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
     @NonNull
     @Override
     public ChatHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        long t0 = System.currentTimeMillis(), t1;
-
         if (holder_0 == null) {
             holder_0 = new ArrayList<>();
             holder_1 = new ArrayList<>();
@@ -84,26 +83,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
             holder_1.add(new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null)));
         }
-
         if (viewType == 1) {
             if (!holder_1.isEmpty()) {
-                t1 = System.currentTimeMillis();
-                Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
                 return holder_1.remove(0);
             }
-            t1 = System.currentTimeMillis();
-            Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
             return new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_right, null));
         }
         else {
             if (!holder_0.isEmpty()) {
-                t1 = System.currentTimeMillis();
-                Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
                 return holder_0.remove(0);
             }
-
-            t1 = System.currentTimeMillis();
-            Log.w(TAG, "onCreateViewHolder " + (t1 - t0));
             return new ChatHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.messaging_adapter_left, null));
         }
     }
@@ -136,6 +125,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
                 holder.txt_name.setVisibility(View.VISIBLE);
             }
         }
+
+        if (prev < DATA.size() && DATA.get(prev).date.equals(item.date)) {
+            holder.pg_date.setVisibility(View.GONE);
+        }
+        else {
+            holder.txt_date.setText(item.date);
+            holder.pg_date.setVisibility(View.VISIBLE);
+        }
+
 
         if (item.call > 0) {
             holder.txt_notif.setText("Panggilan ke - " + item.call);
@@ -259,6 +257,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             public boolean onLongClick(View view) {
                 SELECTED.put(item.id, item);
                 holder.lyt_selected.setVisibility(View.VISIBLE);
+                onSelectedChanged(SELECTED);
                 return false;
             }
         });
@@ -267,11 +266,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             public void onClick(View view) {
                 SELECTED.remove(item.id);
                 view.setVisibility(View.INVISIBLE);
+                onSelectedChanged(SELECTED);
             }
         });
 
         t1 = System.currentTimeMillis();
         Log.w(TAG, "onBindViewHolder " + (t1 - t0));
+    }
+
+    public void onSelectedChanged(HashMap<String, ChatHolder.ItemHolder> selected) {
+
     }
 
 }

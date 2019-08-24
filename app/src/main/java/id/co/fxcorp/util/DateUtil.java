@@ -26,6 +26,10 @@ public class DateUtil {
         return new SimpleDateFormat("dd/MM/yy").format(time);
     }
 
+    public static String formatDateTime(long time) {
+        return new SimpleDateFormat("dd/MM/yy HH:mm").format(time);
+    }
+
     public static String formatDateReverse(long time) {
         return new SimpleDateFormat("yyMMdd").format(time);
     }

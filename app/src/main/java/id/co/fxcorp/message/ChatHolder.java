@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.text.SimpleDateFormat;
+
 import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.UserDB;
 import id.co.fxcorp.ngantri.R;
@@ -22,6 +24,8 @@ import id.co.fxcorp.util.DateUtil;
 public class ChatHolder extends RecyclerView.ViewHolder {
 
 
+    View     pg_date;
+    TextView txt_date;
     TextView txt_name;
     TextView  txt_text;
     TextView  txt_time;
@@ -36,6 +40,8 @@ public class ChatHolder extends RecyclerView.ViewHolder {
 
     public ChatHolder(View itemView) {
         super(itemView);
+        pg_date  = itemView.findViewById(R.id.pg_date);
+        txt_date = itemView.findViewById(R.id.txt_date);
         txt_name = itemView.findViewById(R.id.txt_name);
         txt_text = itemView.findViewById(R.id.txt_text);
         txt_time = itemView.findViewById(R.id.txt_time);
@@ -55,6 +61,7 @@ public class ChatHolder extends RecyclerView.ViewHolder {
                 R.color.name_4, R.color.name_5, R.color.name_6,
                 R.color.name_7, R.color.name_8, R.color.name_9, R.color.name_10};
 
+        String date;
         String time;
         SpannableStringBuilder text_span;
         int name_color;
@@ -62,6 +69,12 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         public ItemHolder(Context context, ChatModel ref) {
             super();
             copyFrom(ref);
+            if (DateUtil.isSameDay(ref.created_time, System.currentTimeMillis())) {
+                date = "Hari ini";
+            }
+            else {
+                date = new SimpleDateFormat("dd MMMM yy").format(ref.created_time);
+            }
             time = DateUtil.formatTime(ref.created_time);
             if (!TextUtils.isEmpty(ref.text)) {
                 text_span = new SpannableStringBuilder();

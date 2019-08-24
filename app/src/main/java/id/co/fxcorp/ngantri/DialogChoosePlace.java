@@ -120,6 +120,7 @@ public class DialogChoosePlace {
         btn_forum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog.dismiss();
                 Intent intent = new Intent(view.getContext(), MessagingActivity.class);
                 intent.putExtra("title",  place.getName());
                 intent.putExtra("thumb",  place.getPhoto());
@@ -314,6 +315,7 @@ public class DialogChoosePlace {
         btn_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dialog.dismiss();
                 Intent intent = new Intent(view.getContext(), MessagingActivity.class);
                 intent.putExtra("title",  place.getName());
                 intent.putExtra("thumb",  place.getPhoto());
@@ -322,6 +324,97 @@ public class DialogChoosePlace {
             }
         });
         dialog.show();
+        return dialog;
+    }
+
+    public static AlertDialog cancel(final Context context, final PlaceModel place, final AntriModel exist) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_place, null);
+        ImageView img_photo = view.findViewById(R.id.img_photo);
+        TextView txt_name = view.findViewById(R.id.txt_name);
+        TextView txt_description = view.findViewById(R.id.txt_description);
+        TextView txt_info = view.findViewById(R.id.txt_info);
+        final View btn_close  = view.findViewById(R.id.btn_close);
+        final View btn_chat2  = view.findViewById(R.id.btn_chat2);
+        final View btn_cancel = view.findViewById(R.id.btn_cancel);
+
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        Glide.with(img_photo)
+                .load(place.getPhoto())
+                .into(img_photo);
+
+        txt_name       .setText(place.getString(PlaceModel.NAME));
+        txt_description.setText(place.getString(PlaceModel.DESCRIPTION));
+
+        long today = System.currentTimeMillis();
+
+        if (DateUtil.isSameDay(exist.time, today)) {
+            if (DateUtil.isSameDay(place.getLastOpen(), today) && place.getNumberCurrent() > 0) {
+                txt_info.setText("Nomor " + exist.number + " | Saat ini" + place.getNumberCurrent());
+            }
+            else{
+                txt_info.setText("Nomor " + exist.number + " | Hari ini");
+            }
+        }
+        else {
+            txt_info.setText("Nomor " + exist.number + " | " + DateUtil.formatDate(exist.time));
+        }
+
+
+        view.findViewById(R.id.lyt_cancel).setVisibility(View.VISIBLE);
+
+        btn_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    dialog.dismiss();
+                } catch (Exception e) {
+                    Log.e("DialogChoosePlace", "", e);
+                }
+            }
+        });
+
+
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                try {
+                    btn_cancel.setEnabled(false);
+                    AntriDB.setComplete(exist.place_id, exist.id, "Batal")
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            btn_cancel.setEnabled(true);
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e("DialogChoosePlace", "", e);
+                }
+            }
+        });
+        dialog.show();
+
+        btn_chat2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                Intent intent = new Intent(view.getContext(), MessagingActivity.class);
+                intent.putExtra("title",  place.getName());
+                intent.putExtra("thumb",  place.getPhoto());
+                intent.putExtra("group",  place.getPlaceId());
+                view.getContext().startActivity(intent);
+            }
+        });
         return dialog;
     }
 

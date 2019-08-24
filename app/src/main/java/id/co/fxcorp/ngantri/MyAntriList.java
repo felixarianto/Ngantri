@@ -74,72 +74,29 @@ public class MyAntriList {
                 Glide.with(img_photo).load(antri.place_photo)
                         .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
                         .into(img_photo);
-            }
 
-            private void showMenu(final View parent, final AntriModel antri) {
-                // Create the Snackbar
-                final Snackbar snackbar = Snackbar.make(parent, "", Snackbar.LENGTH_LONG);
-                Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snackbar.getView();
-                TextView textView = layout.findViewById(android.support.design.R.id.snackbar_text);
-                textView.setVisibility(View.INVISIBLE);
-
-                View snackView = LayoutInflater.from(parent.getContext()).inflate(R.layout.antri_option, null);
-                TextView txt_title = snackView.findViewById(R.id.txt_title);
-                View btn_chat = snackView.findViewById(R.id.btn_chat);
-                View btn_loc = snackView.findViewById(R.id.btn_loc);
-                View btn_cancel = snackView.findViewById(R.id.btn_cancel);
-
-                txt_title.setText(antri.place_name);
-                btn_loc.setOnClickListener(new View.OnClickListener() {
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view) {
-                        PlaceDB.getPlace(antri.place_id).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                try {
-                                    snackbar.dismiss();
-                                    PlaceModel place = new PlaceModel(dataSnapshot);
-                                    LatLng latlng = place.getLatLng();
-
-                                    String uri = "http://maps.google.com/maps?q=loc:" + latlng.latitude + "," + latlng.longitude + " (" + URLEncoder.encode(place.getName()) + ")";
-                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                                    parent.getContext().startActivity(intent);
-                                } catch (Exception e) {
-                                    Log.e(TAG, "", e);
+                    public void onClick(final View view) {
+                        try {
+                            PlaceDB.getPlace(antri.place_id).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    DialogChoosePlace.cancel(view.getContext(), new PlaceModel(dataSnapshot), antri);
                                 }
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                            }
-                        });
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(TAG, "", e);
+                        }
                     }
                 });
-
-                btn_chat.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        snackbar.dismiss();
-                        Intent intent = new Intent(view.getContext(), MessagingActivity.class);
-                        intent.putExtra("title",  antri.place_name + " " + DateUtil.formatDate(System.currentTimeMillis()));
-                        intent.putExtra("thumb",  antri.place_photo);
-                        intent.putExtra("group",  antri.place_id);
-                        view.getContext().startActivity(intent);
-                    }
-                });
-
-                btn_cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        snackbar.dismiss();
-                    }
-                });
-                layout.setPadding(0,0,0,0);
-                layout.addView(snackView, 0);
-
-                snackbar.setDuration(Snackbar.LENGTH_SHORT).show();
-
             }
+
         });
         Log.d(TAG, "init");
     }
