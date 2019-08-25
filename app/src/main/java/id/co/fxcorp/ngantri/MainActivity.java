@@ -44,7 +44,9 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -92,6 +94,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.d(TAG, "onNewIntent");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            switch (requestCode) {
+                case REQEUST_SCAN_QRCODE:
+                    if (resultCode == RESULT_OK) {
+                        PlaceDB.getPlace(data.getStringExtra("result")).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                PlaceModel place = new PlaceModel(dataSnapshot);
+                                if (place.getOwner().equals(UserDB.MySELF.id)) {
+                                    DialogChoosePlace.open(MainActivity.this, place);
+                                }
+                                else {
+                                    DialogChoosePlace.take(MainActivity.this, place, null);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "", e);
+        }
     }
 
     @Override
@@ -456,6 +492,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Circle lastUserCircle;
     private ValueAnimator lastPulseAnimator;
+
+
 
 
 

@@ -6,6 +6,20 @@
     android:background="@color/blue_grey_50"
     android:focusableInTouchMode="true">
 
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_chats"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            <include layout="@layout/toolbar_conversation"/>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
     <RelativeLayout
         android:id="@+id/rly_composer"
         android:layout_width="match_parent"
@@ -41,6 +55,7 @@
                 android:paddingBottom="2dp"
                 android:hint="Ketik pesan"
                 android:scrollbars="vertical"
+                android:inputType="text|textMultiLine"
                 />
 
         </android.support.v7.widget.CardView>

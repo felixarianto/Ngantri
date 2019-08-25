@@ -60,7 +60,7 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
     @Override
     public void handleResult(Result result) {
         Intent intent = new Intent();
-        intent.putExtra("qrcode", result.getText());
+        intent.putExtra("result", result.getText());
         setResult(RESULT_OK, intent);
         finish();
     }

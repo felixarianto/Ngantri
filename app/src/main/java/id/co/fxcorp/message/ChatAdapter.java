@@ -25,6 +25,10 @@ import com.bumptech.glide.request.target.Target;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ConcurrentHashMap;
 
 import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.UserDB;
@@ -252,6 +256,17 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
             holder.lyt_selected.setVisibility(View.INVISIBLE);
         }
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!SELECTED.isEmpty()) {
+                    SELECTED.put(item.id, item);
+                    holder.lyt_selected.setVisibility(View.VISIBLE);
+                    onSelectedChanged(SELECTED);
+                }
+            }
+        });
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -276,6 +291,19 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatHolder>{
 
     public void onSelectedChanged(HashMap<String, ChatHolder.ItemHolder> selected) {
 
+    }
+
+    public void clearSelected() {
+        if (!SELECTED.isEmpty()) {
+            ArrayList<ChatHolder.ItemHolder> list = new ArrayList<>(SELECTED.values());
+            for(ChatHolder.ItemHolder item: list) {
+                SELECTED.remove(item.id);
+                int idx = DATA.indexOf(item);
+                if (idx > -1) {
+                    notifyItemChanged(idx);
+                }
+            }
+        }
     }
 
 }

@@ -72,11 +72,11 @@ public class MessagingActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayUseLogoEnabled(true);
-            Glide.with(this).load(getIntent().getStringExtra("thumb")).apply(new RequestOptions().circleCrop())
+            Glide.with(this).load(getIntent().getStringExtra("thumb")).apply(new RequestOptions())
                     .into(new SimpleTarget<Drawable>() {
                         @Override
                         public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                            getSupportActionBar().setIcon(resource);
+                            getSupportActionBar().setLogo(resource);
                         }
                     });
         }
@@ -202,9 +202,11 @@ public class MessagingActivity extends AppCompatActivity {
                 }
                 else {
                     if (actionMode != null) {
+                        actionMode.setTitle("(" + selected.size() + ")");
                         return;
                     }
                     actionMode = ((AppCompatActivity) MessagingActivity.this).startSupportActionMode(actionModeCopyCallback);
+                    actionMode.setTitle("(" + selected.size() + ")");
                 }
             }
         };
@@ -485,53 +487,57 @@ public class MessagingActivity extends AppCompatActivity {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.copy:
-
+                    final ArrayList<ChatHolder.ItemHolder> selected = new ArrayList<>(mAdapter.SELECTED.values());
                     new Thread() {
                         @Override
                         public void run() {
                             final StringBuilder text = new StringBuilder();
-                            ArrayList<ChatHolder.ItemHolder> list = new ArrayList<>(mAdapter.SELECTED.values());
-                            if (list.size() == 1) {
-                                text.append(list.get(0).text);
+                            if (selected.size() == 1) {
+                                for (ChatHolder.ItemHolder item: selected) {
+                                    text.append("[").append(item.name).append(DateUtil.formatDateTime(item.created_time)).append("]")
+                                        .append(" ").append(item.text)
+                                        .append("\n");
+                                }
                             }
                             else {
-                                Collections.sort(list, new Comparator<ChatHolder.ItemHolder>() {
+                                Collections.sort(selected, new Comparator<ChatHolder.ItemHolder>() {
                                     @Override
                                     public int compare(ChatHolder.ItemHolder itemHolder, ChatHolder.ItemHolder t1) {
                                         return itemHolder.created_time > t1.created_time ? -1 : 1;
                                     }
                                 });
 
-                                for (ChatHolder.ItemHolder item: list) {
+                                for (ChatHolder.ItemHolder item: selected) {
                                     text.append("[").append(item.name).append(DateUtil.formatDateTime(item.created_time)).append("]")
-                                    .append(" ").append(item.text)
-                                    .append("\n");
+                                        .append(" ").append(item.text)
+                                        .append("\n");
                                 }
-
                             }
 
                             rcvw.getHandler().post(new Runnable() {
                                 @Override
                                 public void run() {
                                     ClipboardManager clipboard = (ClipboardManager) getSystemService(rcvw.getContext().CLIPBOARD_SERVICE);
-                                    ClipData clip = ClipData.newPlainText("Copied Text", text.toString());
+                                    ClipData clip = ClipData.newPlainText("Simple Text", text.toString());
                                     clipboard.setPrimaryClip(clip);
                                     Toast.makeText(rcvw.getContext(), "Tersalin", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
                     }.start();
-                    mode.finish(); // Action picked, so close the CAB
+                    mode.finish();
                     return true;
                 default:
                     return false;
             }
+
         }
 
         // Called when the user exits the action mode
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             actionMode = null;
+            mAdapter.clearSelected();
         }
     };
 

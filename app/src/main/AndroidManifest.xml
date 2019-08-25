@@ -104,7 +104,8 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name="id.co.fxcorp.message.MessagingActivity"></activity>
+        <activity android:name="id.co.fxcorp.message.MessagingActivity"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
