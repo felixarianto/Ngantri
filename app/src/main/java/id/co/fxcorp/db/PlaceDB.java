@@ -28,7 +28,9 @@ public class PlaceDB {
         return (String.format("%.2f", latlng.latitude) + ":" + String.format("%.2f", latlng.longitude)).replaceAll("\\.", "x");
     }
 
+    public static LatLng mLastLatLng;
     public static Query getNearby(LatLng latlng) {
+        mLastLatLng = latlng;
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
         String g_place = (String.format("%.2f", latlng.latitude) + ":" + String.format("%.2f", latlng.longitude)).replaceAll("\\.", "x");
 
@@ -38,6 +40,11 @@ public class PlaceDB {
     public static Task<Void> insert(PlaceModel value) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
         return ref.child(value.getString(PlaceModel.PLACE_ID)).setValue(value);
+    }
+
+    public static Task<Void> remove(String place_id) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
+        return ref.child(place_id).removeValue();
     }
 
     public static Task<Void> setNumberCurrent(String place_id, long number) {

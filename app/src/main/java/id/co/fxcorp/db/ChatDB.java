@@ -25,5 +25,10 @@ public class ChatDB {
         return ref.child(group).orderByChild("created_time").endAt(created_time).limitToLast(limit);
     }
 
+    public static void remove(String group) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(CHAT);
+        ref.child(group).removeValue();
+    }
+
 
 }

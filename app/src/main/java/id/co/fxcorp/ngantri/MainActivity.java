@@ -281,6 +281,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private final int REQEUST_SCAN_QRCODE = 21;
     private void initSearch() {
+        TextView txt_search = findViewById(R.id.txt_search);
+        txt_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, SearchActivity.class));
+            }
+        });
         ImageButton btn_menu = findViewById(R.id.btn_menu);
         btn_menu.setOnClickListener(new View.OnClickListener() {
             @Override

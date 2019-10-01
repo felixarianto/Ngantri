@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -108,7 +109,7 @@ public class PortalFragment extends Fragment {
 
         txt_number.setText(mNumber + "");
         txt_name  .setText(mName);
-        Glide.with(img_photo).load(mPhoto).into(img_photo);
+        Glide.with(img_photo).load(mPhoto).apply(new RequestOptions().placeholder(R.drawable.ic_person_default)).into(img_photo);
 
         HANDLER = new Handler();
         HANDLER.postDelayed(mLoadRunnable, 1000);

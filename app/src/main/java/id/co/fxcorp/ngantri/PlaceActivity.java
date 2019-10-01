@@ -3,11 +3,13 @@ package id.co.fxcorp.ngantri;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
@@ -53,6 +55,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import id.co.fxcorp.barcode.QrCodeGenerator;
+import id.co.fxcorp.db.AntriDB;
+import id.co.fxcorp.db.ChatDB;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
 import id.co.fxcorp.storage.Storage;
@@ -97,6 +101,7 @@ public class PlaceActivity extends AppCompatActivity {
     private Button    btn_location;
     private FloatingActionButton btn_photo;
     private ProgressBar prg_photo;
+    private Button    btn_delete;
 
     PlaceModel mPlaceDB = new PlaceModel();
 
@@ -125,6 +130,7 @@ public class PlaceActivity extends AppCompatActivity {
         img_location = findViewById(R.id.img_location);
         btn_photo = findViewById(R.id.btn_photo);
         prg_photo = findViewById(R.id.prg_photo);
+        btn_delete = findViewById(R.id.btn_delete);
 
         prepareType();
 
@@ -155,7 +161,51 @@ public class PlaceActivity extends AppCompatActivity {
             setTitle(getIntent().getStringExtra(PlaceModel.NAME));
             fill(getIntent().getStringExtra(PlaceModel.PLACE_ID));
 
+            btn_delete.setOnClickListener(new View.OnClickListener() {
 
+                @Override
+                public void onClick(View view) {
+                    try {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(PlaceActivity.this);
+                        dialog.setTitle("Ingin menghapus " + mPlaceDB.getName() + "?");
+                        dialog.setMessage("Segala jenis informasi terkait Tempat ini akan DIHAPUS dan Anda tidak akan dapat mengakses Percakapan maupun Daftar Antrian pada Tempat ini lagi.");
+                        dialog.setPositiveButton("YA, HAPUS SAJA", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                remove();
+                            }
+                        });
+                        dialog.setNegativeButton("TIDAK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        });
+                        dialog.create().show();
+                    } catch (Exception e) {
+                        Log.e(TAG, "", e);
+                    }
+                }
+
+                private void remove() {
+                    PlaceDB.remove(mPlaceDB.getPlaceId()).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(PlaceActivity.this, "Gagal menghapus, Mohon periksa koneksi Anda", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            ChatDB .remove(mPlaceDB.getPlaceId());
+                            AntriDB.remove(mPlaceDB.getPlaceId());
+                            Toast.makeText(PlaceActivity.this, "Tempat dihapus", Toast.LENGTH_SHORT).show();
+                            PlaceActivity.this.finish();
+                        }
+                    });
+                }
+            });
         }
         else {
             //New

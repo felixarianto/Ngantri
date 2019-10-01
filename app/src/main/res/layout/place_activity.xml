@@ -363,6 +363,22 @@
 
                 </RelativeLayout>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="Cetak Kode QR untuk memudahkan Antrian secara langsung ditempat Anda"/>
+
+
+                <Button
+                    android:id="@+id/btn_delete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="12dp"
+                    android:text="HAPUS TEMPAT INI"
+                    android:backgroundTint="@color/red_300"
+                    android:textColor="@color/quantum_white_text"
+                    />
 
             </LinearLayout>
 

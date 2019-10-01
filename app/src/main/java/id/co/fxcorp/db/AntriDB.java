@@ -1,6 +1,7 @@
 package id.co.fxcorp.db;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,6 +33,19 @@ public class AntriDB {
         return FirebaseDatabase.getInstance()
                 .getReference(ANTRIAN)
                 .child(model.id).setValue(model);
+    }
+
+    public static void remove(String place_id) {
+        getAntriListAtPlace(place_id).addChildEventListener(new ChildEvent(){
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                try {
+                    dataSnapshot.getRef().removeValue();
+                } catch (Exception e) {
+                    Log.e(TAG, "", e);
+                }
+            }
+        });
     }
 
     public static Query getMyAntriList() {

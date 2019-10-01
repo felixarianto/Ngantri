@@ -317,10 +317,9 @@ public class Notif {
             builder.setAutoCancel(true);
 
             Intent intent = new Intent(context, MessagingActivity.class);
-            intent.putExtra("title",  place_name + " " + date);
+            intent.putExtra("title",  place_name);
             intent.putExtra("thumb",  place_thumb);
             intent.putExtra("group",  chat.group);
-            intent.putExtra("number", -1);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
             );
@@ -342,7 +341,7 @@ public class Notif {
                 inboxStyle.setSummaryText(place_name + " | " + "No. " + chat.number);
             }
             else {
-                inboxStyle.setSummaryText(place_name + " | ");
+                inboxStyle.setSummaryText(place_name);
             }
 
             manager.notify(ID_CHAT, builder.build());

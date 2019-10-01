@@ -235,6 +235,13 @@ public class MessagingActivity extends AppCompatActivity {
                         loadMore();
                     }
                     txt_date.setText(mAdapter.DATA.get(last_idx).date);
+
+                    if (last_idx < mAdapter.DATA.size() - 1) {
+                        txt_date.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        txt_date.setVisibility(View.INVISIBLE);
+                    }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
                 }

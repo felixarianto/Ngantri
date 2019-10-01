@@ -2,6 +2,7 @@ package id.co.fxcorp.db;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
@@ -36,7 +37,7 @@ public class UserDB {
     }
 
 
-    public static boolean checkLoginState(final Activity activity) {
+    public static boolean checkLoginState(final Context activity) {
         if (MySELF == null) {
             AlertDialog.Builder alert = new AlertDialog.Builder(activity);
             alert.setMessage("Mohon Maaf, Anda harus Login terlebih dahulu");

@@ -2,25 +2,24 @@ package id.co.fxcorp.ngantri;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,16 +29,95 @@ import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
 import id.co.fxcorp.db.UserDB;
 
-public class NearbyPlacesList {
+public class SearchActivity extends AppCompatActivity {
 
-    private final String TAG = "NearbyPlacesList";
-
-    private static NearbyPlacesList mInstances;
-    public static NearbyPlacesList get() {
-        if (mInstances == null) {
-            mInstances = new NearbyPlacesList();
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.search_activity);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        return mInstances;
+        setTitle("Pencarian Tempat");
+
+
+        RecyclerView rcv_place = findViewById(R.id.rcv_place);
+        init(rcv_place);
+
+        SearchView src_place = findViewById(R.id.src_place);
+        src_place.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            private String keyWord = "";
+
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                SETS_PLACE.clear();
+                mNearbyAdapter.DATA.clear();
+                mNearbyAdapter.notifyDataSetChanged();
+                findPlace(keyWord = s.toLowerCase());
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+
+            private void findPlace(final String keyword) {
+                PlaceDB.getMyPlace().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        checkPlace(dataSnapshot);
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                if (PlaceDB.mLastLatLng != null) {
+                    PlaceDB.getNearby(PlaceDB.mLastLatLng).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            checkPlace(dataSnapshot);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+                }
+            }
+
+            private HashSet<String> SETS_PLACE = new HashSet<>();
+            private void checkPlace(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> data = dataSnapshot.getChildren().iterator();
+                while (data.hasNext()) {
+                    PlaceModel place = new PlaceModel(data.next());
+                    if (place.getName() != null && place.getName().toLowerCase().contains(keyWord)) {
+                        if (SETS_PLACE.add(place.getPlaceId())) {
+                            mNearbyAdapter.DATA.add(place);
+                            mNearbyAdapter.notifyItemInserted(mNearbyAdapter.DATA.size() - 1);
+                        }
+                    }
+                }
+            }
+
+        });
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+        }
+        return false;
     }
 
     private RecyclerView rcv;
@@ -62,7 +140,7 @@ public class NearbyPlacesList {
                 txt_address    .setText(place.getString(PlaceModel.ADDRESS));
 
                 Glide.with(img_photo).load(place.getPhoto()).apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
-                     .into(img_photo);
+                        .into(img_photo);
 
                 List<String> workhour = (List<String>) place.get(PlaceModel.WORK_HOUR);
                 if (workhour != null) {
@@ -129,91 +207,4 @@ public class NearbyPlacesList {
             }
         });
     }
-
-    private Query              mLastQuery;
-    private ChildEventListener mLastQueryListener;
-    private String mLastGPlaceId;
-    public void listen(LatLng latlng) {
-        String g_placeid = PlaceDB.toGPlace(latlng);
-        if (mLastGPlaceId != null && mLastGPlaceId.equals(g_placeid)) {
-            return;
-        }
-        mLastGPlaceId = g_placeid;
-
-        if (mLastQueryListener != null) {
-            mLastQuery.removeEventListener(mLastQueryListener);
-        }
-
-        mNearbyAdapter.DATA.clear();
-        mNearbyAdapter.notifyDataSetChanged();
-
-        Log.d(TAG, "listen");
-
-        mLastQuery = PlaceDB.getNearby(latlng);
-        mLastQuery.addChildEventListener(mLastQueryListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable final String prevChildKey) {
-                try {
-                    PlaceModel place = new PlaceModel(dataSnapshot);
-                    mNearbyAdapter.DATA.add(0, place);
-                    mNearbyAdapter.notifyItemInserted(0);
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String prevChildKey) {
-                try {
-                    PlaceModel place = new PlaceModel(dataSnapshot);
-                    for (int i = 0; i < mNearbyAdapter.DATA.size(); i++) {
-                        if (mNearbyAdapter.DATA.get(i).getString(PlaceModel.PLACE_ID).equals(place.getString(PlaceModel.PLACE_ID))) {
-                            mNearbyAdapter.DATA.set(i, place);
-                            mNearbyAdapter.notifyItemChanged(i);
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
-                }
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    PlaceModel place = new PlaceModel(dataSnapshot);
-                    for (int i = 0; i < mNearbyAdapter.DATA.size(); i++) {
-                        if (mNearbyAdapter.DATA.get(i).getString(PlaceModel.PLACE_ID).equals(place.getString(PlaceModel.PLACE_ID))) {
-                            mNearbyAdapter.DATA.remove(i);
-                            mNearbyAdapter.notifyItemRemoved(i);
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
-                }
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    public void release() {
-        mLastGPlaceId = "";
-        if (mLastQueryListener != null) {
-            mLastQuery.removeEventListener(mLastQueryListener);
-            mLastQueryListener = null;
-            mLastQuery = null;
-        }
-        mInstances = null;
-    }
-
 }
