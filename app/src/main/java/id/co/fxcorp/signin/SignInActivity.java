@@ -146,17 +146,29 @@ public class SignInActivity extends AppCompatActivity {
                 // The Task returned from this call is always completed, no need to attach
                 // a listener.
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                GoogleSignInAccount account = task.getResult(ApiException.class);
+                final GoogleSignInAccount account = task.getResult(ApiException.class);
 
-                Intent intent = new Intent(this, SignUpActivity.class);
-                intent.putExtra("email", account.getEmail());
-                intent.putExtra("name",  account.getDisplayName());
-                intent.putExtra("photo", account.getPhotoUrl().toString());
+                AppService.signIn(SignInActivity.this, account.getEmail(), null, new AppService.SignInListener() {
+                    @Override
+                    public void OnResult(boolean signed, UserModel user) {
+                        if (signed) {
+                            finish();
+                            return;
+                        }
+                        else {
+                            Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
+                            intent.putExtra("email", account.getEmail());
+                            intent.putExtra("name",  account.getDisplayName());
+                            if (account.getPhotoUrl() != null) {
+                                intent.putExtra("photo", account.getPhotoUrl().toString());
+                            }
 
-                mGoogleSignInClient.signOut();
-
-                startActivity(intent);
-                finish();
+                            mGoogleSignInClient.signOut();
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                });
             }
         } catch (Exception e) {
             Log.e(TAG, "", e);

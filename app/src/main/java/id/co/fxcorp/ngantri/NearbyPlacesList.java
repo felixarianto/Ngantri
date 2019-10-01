@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -63,17 +64,28 @@ public class NearbyPlacesList {
 
                 List<String> workhour = (List<String>) place.get(PlaceModel.WORK_HOUR);
                 if (workhour != null) {
-                    txt_hour.setText("Buka " + workhour.get(0) + ":00 s/d " + workhour.get(1) + ":00");
+
+                    Calendar cal = Calendar.getInstance();
+                    int day = cal.get(Calendar.DAY_OF_WEEK) - 1;
+                    if (day == 0) {
+                        day = 7;
+                    }
+                    day++;
+                    if (day < workhour.size() && "1".equals(workhour.get(day))) {
+                        txt_hour.setText("Buka " + workhour.get(0) + ":00 s/d " + workhour.get(1) + ":00");
+                    }
+                    else {
+                        txt_hour.setText("Hari ini TUTUP");
+                    }
+
                 }
 
                 if (place.isOnline()) {
                     txt_number.setText(place.getNumberQty() + "");
                     holder.itemView.findViewById(R.id.lyt_number).setVisibility(View.VISIBLE);
-                    holder.itemView.findViewById(R.id.txt_closed).setVisibility(View.GONE);
                 }
                 else {
                     holder.itemView.findViewById(R.id.lyt_number).setVisibility(View.GONE);
-                    holder.itemView.findViewById(R.id.txt_closed).setVisibility(View.VISIBLE);
                 }
 
                 holder.itemView.setOnClickListener(new View.OnClickListener() {

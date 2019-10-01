@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.MutableData;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,6 +134,22 @@ public class PlaceModel extends Model {
 
     public final long getLastOpen() {
         return getLong(LAST_OPEN);
+    }
+
+    public final boolean isOpenToday() {
+        List<String> workhour = (List<String>) get(PlaceModel.WORK_HOUR);
+        if (workhour != null) {
+            Calendar cal = Calendar.getInstance();
+            int day = cal.get(Calendar.DAY_OF_WEEK) - 1;
+            if (day == 0) {
+                day = 7;
+            }
+            day++;
+            if (day < workhour.size() && "1".equals(workhour.get(day))) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

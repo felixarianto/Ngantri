@@ -47,6 +47,13 @@ public class PlaceDB {
         return ref.child(place_id).updateChildren(map);
     }
 
+    public static Task<Void> setOnline(String place_id, boolean online) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(PlaceModel.ONLINE, online ? 1L : 0L);
+        return ref.child(place_id).updateChildren(map);
+    }
+
     public static Task<Void> setNumberQty(String place_id, long qty, long last) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
         HashMap<String, Object> map = new HashMap<>();

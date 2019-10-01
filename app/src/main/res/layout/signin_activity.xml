@@ -3,177 +3,163 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/cyan_800_overlay">
 
-    <ImageView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/cyan_800_overlay" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="50dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
-            android:text="Selamat Datang!"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
-            android:textColor="@android:color/white" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:fontFamily="sans-serif-light"
-            android:text="Semoga hari ini menyenangkan"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:textColor="@android:color/white" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <View
-            android:layout_width="50dp"
-            android:layout_height="3dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@android:color/white" />
-
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/EditText.White.Hint">
-
-            <EditText
-                android:id="@+id/edt_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="-4dp"
-                android:layout_marginRight="-4dp"
-                android:hint="EMAIL"
-                android:inputType="text"
-                android:maxLength="50"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textColor="@color/grey_10"
-                android:theme="@style/EditText.White" />
-
-        </android.support.design.widget.TextInputLayout>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="8dp" />
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/EditText.White.Hint">
-
-            <EditText
-                android:id="@+id/edt_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="-4dp"
-                android:layout_marginRight="-4dp"
-                android:hint="PASSWORD"
-                android:inputType="textPassword"
-                android:maxLength="50"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textColor="@color/grey_10"
-                android:theme="@style/EditText.White" />
-
-        </android.support.design.widget.TextInputLayout>
-
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="12dp" />
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
-
-            <android.support.v7.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="15dp"
-                app:cardBackgroundColor="@android:color/white"
-                android:layout_margin="4dp">
-
-                <Button
-                    android:id="@+id/btn_signin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="MASUK"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:textColor="@color/cyan_800"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp"
-                    android:paddingLeft="40dp"
-                    android:paddingRight="40dp"/>
-
-            </android.support.v7.widget.CardView>
-
-
-            <ProgressBar
-                android:id="@+id/prg_signin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:theme="@style/ProgressBar.White"
-                android:visibility="gone" />
-
-        </RelativeLayout>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/sign_up_for_account"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="20dp" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@mipmap/ic_launcher"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"/>
 
             <TextView
-                android:id="@+id/txt_signup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Belum punya Akun? Silahkan Daftar."
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_10" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:text="Selamat Datang!"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
+                android:textColor="@android:color/white" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans-serif-light"
+                android:text="Semoga hari ini menyenangkan"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textColor="@android:color/white" />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="30dp"
+                android:layout_height="wrap_content"
+                android:theme="@style/EditText.White.Hint">
+
+                <EditText
+                    android:id="@+id/edt_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="-4dp"
+                    android:layout_marginRight="-4dp"
+                    android:hint="E-Mail"
+                    android:inputType="text"
+                    android:maxLength="50"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/grey_10"
+                    android:theme="@style/EditText.White" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="8dp" />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/EditText.White.Hint">
+
+                <EditText
+                    android:id="@+id/edt_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="-4dp"
+                    android:layout_marginRight="-4dp"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:maxLength="50"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/grey_10"
+                    android:theme="@style/EditText.White" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="12dp" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp">
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    android:layout_margin="4dp">
+
+                    <Button
+                        android:id="@+id/btn_signin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MASUK"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:textColor="@color/cyan_800"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
+                        android:paddingLeft="40dp"
+                        android:paddingRight="40dp"/>
+
+                </android.support.v7.widget.CardView>
+
+
+                <ProgressBar
+                    android:id="@+id/prg_signin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:theme="@style/ProgressBar.White"
+                    android:visibility="gone" />
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:id="@+id/sign_up_for_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txt_signup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="Belum punya Akun? Silahkan DAFTAR DISINI."
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/grey_10" />
+
+
+            </LinearLayout>
 
         </LinearLayout>
-
-    </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

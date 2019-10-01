@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -169,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             txt_name.setText(UserDB.MySELF.name);
             txt_email.setText(UserDB.MySELF.email);
             Glide.with(img_photo).load(UserDB.MySELF.photo)
-                    .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
+                    .apply(new RequestOptions().placeholder(R.drawable.ic_person_default).diskCacheStrategy(DiskCacheStrategy.ALL))
                     .into(img_photo);
             loadMyPlace();
             MyAntriList.get().listen(findViewById(R.id.lyt_antri));
@@ -296,6 +297,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btn_qrcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, 432);
+                        return;
+                    }
+                }
                 startActivityForResult(new Intent(MainActivity.this, QrCodeScannerActivity.class), REQEUST_SCAN_QRCODE);
             }
         });
@@ -377,9 +384,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     int id = item.getItemId();
                     if (id == R.id.nav_open) {
-                        startActivityForResult(new Intent(MainActivity.this, PlaceActivity.class), 1);
-                    } else if (id == R.id.nav_ads) {
-                        startActivityForResult(new Intent(MainActivity.this, PlacePickerActivity.class), 1);
+                        if (UserDB.checkLoginState(MainActivity.this)) {
+                            startActivityForResult(new Intent(MainActivity.this, PlaceActivity.class), 1);
+                        }
                     } else {
                         final Intent intent = item.getIntent();
                         if (intent != null && "OPEN_PLACE".equals(intent.getAction())) {

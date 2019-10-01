@@ -2,6 +2,7 @@ package id.co.fxcorp.ngantri;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
@@ -10,11 +11,14 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -40,7 +44,7 @@ public class Portal2Activity extends AppCompatActivity {
     private String mPlaceId = "";
     private PlaceModel mPlace;
 
-    private TextToSpeech mTextToSpeech;
+    SwitchCompat sw_online;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +59,7 @@ public class Portal2Activity extends AppCompatActivity {
         setTitle(intent.getStringExtra(PlaceModel.NAME));
 
         setContentView(R.layout.portal2_activity);
+        sw_online  = findViewById(R.id.sw_online);
         vw_pager   = findViewById(R.id.vw_pager);
         crd_bottom = findViewById(R.id.crd_bottom);
         txt_info1  = findViewById(R.id.txt_info1);
@@ -64,15 +69,26 @@ public class Portal2Activity extends AppCompatActivity {
         txt_info1.setText("");
         txt_info2.setText("");
 
-        initPager();
-        initPlace();
-
-        mTextToSpeech = new TextToSpeech(Portal2Activity.this, new TextToSpeech.OnInitListener() {
+        sw_online.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onInit(int status) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    sw_online.setText("ONLINE");
+                }
+                else {
+                    sw_online.setText("OFFLINE");
+                }
 
+                if (mPlace != null) {
+                    if (mPlace.isOnline() != b) {
+                        PlaceDB.setOnline(mPlace.getPlaceId(), b);
+                    }
+                }
             }
         });
+
+        initPager();
+        initPlace();
 
         findViewById(R.id.btn_chat).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +100,9 @@ public class Portal2Activity extends AppCompatActivity {
                 view.getContext().startActivity(intent);
             }
         });
+
+
+
     }
 
     @Override
@@ -149,6 +168,9 @@ public class Portal2Activity extends AppCompatActivity {
                         else {
                             PlaceDB.setLastOpen(place.getPlaceId(), System.currentTimeMillis());
                         }
+
+                        sw_online.setChecked(place.isOnline());
+
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "", e);
@@ -271,20 +293,25 @@ public class Portal2Activity extends AppCompatActivity {
 
         };
 
-        PortalTransform fragmentTransformer = new PortalTransform(vw_pager, mAdapter);
-        fragmentTransformer.enableScaling(true);
+//        PortalTransform fragmentTransformer = new PortalTransform(vw_pager, mAdapter);
+//        fragmentTransformer.enableScaling(true);
 
-        vw_pager.setPageTransformer(false, new ViewPager.PageTransformer() {
-            @Override
-            public void transformPage(@NonNull View page, float position) {
-
-            }
-        });
 
         vw_pager.setAdapter(mAdapter);
-        vw_pager.setPageTransformer(false, fragmentTransformer);
+//        vw_pager.setPageTransformer(false, fragmentTransformer);
         vw_pager.setOffscreenPageLimit(3);
 
+//        Display display = getWindowManager(). getDefaultDisplay();
+//        Point size = new Point();
+//        display. getSize(size);
+//        int width  = size. x;
+//        int height = size. y;
+//        if (width < height) {
+//            vw_pager.getLayoutParams().height = width;
+//        }
+//        else {
+//            vw_pager.getLayoutParams().width  = height;
+//        }
     }
 
 

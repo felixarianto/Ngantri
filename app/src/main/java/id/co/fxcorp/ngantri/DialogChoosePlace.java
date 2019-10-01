@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -53,6 +54,8 @@ public class DialogChoosePlace {
         final View btn_forum  = view.findViewById(R.id.btn_forum);
         final View btn_portal = view.findViewById(R.id.btn_portal);
         final View btn_home   = view.findViewById(R.id.btn_home);
+
+        btn_portal.setEnabled(place.isOpenToday());
 
         builder.setView(view);
         final AlertDialog dialog = builder.create();
@@ -213,6 +216,8 @@ public class DialogChoosePlace {
         final Button btn_chat  = view.findViewById(R.id.btn_chat);
         final Button btn_antri = view.findViewById(R.id.btn_antri);
         final Button btn_book  = view.findViewById(R.id.btn_book);
+
+        btn_antri.setEnabled(place.isOpenToday());
 
         builder.setView(view);
 

@@ -76,6 +76,7 @@ public class PlaceActivity extends AppCompatActivity {
     private SubmitTask mSubmitTask = null;
 
     // UI references.
+    private View rly_location;
     private EditText edt_name;
     private TextView txt_address;
     private AutoCompleteTextView edt_type;
@@ -120,6 +121,7 @@ public class PlaceActivity extends AppCompatActivity {
         chk_min = findViewById(R.id.chk_min);
         prg_sumbit = findViewById(R.id.prg_sumbit);
         btn_location = findViewById(R.id.btn_location);
+        rly_location = findViewById(R.id.rly_location);
         img_location = findViewById(R.id.img_location);
         btn_photo = findViewById(R.id.btn_photo);
         prg_photo = findViewById(R.id.prg_photo);
@@ -159,6 +161,7 @@ public class PlaceActivity extends AppCompatActivity {
             //New
             mPlaceDB.put(PlaceModel.PLACE_ID, "P-" + AppInfo.getUserId() + "-" + Long.toHexString(System.currentTimeMillis()));
             mPlaceDB.put(PlaceModel.OWNER, AppInfo.getUserId());
+            rly_location.setVisibility(View.GONE);
         }
 
     }
@@ -208,6 +211,8 @@ public class PlaceActivity extends AppCompatActivity {
                         Glide.with(img_location)
                         .load(MapStatic.getImageUrl(PlaceActivity.this, latitude, longitude))
                         .into(img_location);
+
+                        rly_location.setVisibility(View.VISIBLE);
                     }
                     break;
                 case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:

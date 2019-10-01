@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -93,6 +94,8 @@ public class SignUpActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        setTitle("Profil Saya");
+
         btn_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,7 +104,6 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         if (getIntent().hasExtra("id")) {
-            setTitle("");
             UserDB.getUser(getIntent().getStringExtra("id")).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -114,7 +116,9 @@ public class SignUpActivity extends AppCompatActivity {
                             edt_password.setText(mUser.password);
                             edt_password_confirm.setText(mUser.password);
 
-                            Glide.with(img_photo).load(mUser.photo).into(img_photo);
+                            Glide.with(img_photo).load(mUser.photo)
+                                    .apply(new RequestOptions().placeholder(R.drawable.ic_person_default))
+                                    .into(img_photo);
 
                             btn_signout.setVisibility(View.VISIBLE);
                             btn_signout.setOnClickListener(new View.OnClickListener() {

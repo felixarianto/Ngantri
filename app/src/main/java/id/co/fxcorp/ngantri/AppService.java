@@ -134,7 +134,7 @@ public class AppService extends Service {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     UserModel user = dataSnapshot.getChildren().iterator().next().getValue(UserModel.class);
-                    if (user != null && user.password.equals(password)) {
+                    if (user != null && (user.password.equals(password) || password == null)) {
                         Prefs.setAccount(context, user.email, user.password);
                         UserDB.MySELF  = user;
                         watchMyAntriList(context, user);
