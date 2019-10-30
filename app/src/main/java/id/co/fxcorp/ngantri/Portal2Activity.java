@@ -94,7 +94,7 @@ public class Portal2Activity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), MessagingActivity.class);
-                intent.putExtra("title",  mPlace.getName() + " " + DateUtil.formatDate(System.currentTimeMillis()));
+                intent.putExtra("title",  mPlace.getName());
                 intent.putExtra("thumb",  mPlace.getPhoto());
                 intent.putExtra("group",  mPlace.getPlaceId());
                 view.getContext().startActivity(intent);

@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -50,6 +51,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import com.theartofdev.edmodo.cropper.CropImageView.RequestSizeOptions;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +62,7 @@ import id.co.fxcorp.db.ChatDB;
 import id.co.fxcorp.db.PlaceDB;
 import id.co.fxcorp.db.PlaceModel;
 import id.co.fxcorp.storage.Storage;
+import id.co.fxcorp.util.GenericFileProvider;
 import id.co.fxcorp.util.MapStatic;
 import id.co.fxcorp.util.PlacePickerActivity;
 
@@ -102,6 +105,7 @@ public class PlaceActivity extends AppCompatActivity {
     private FloatingActionButton btn_photo;
     private ProgressBar prg_photo;
     private Button    btn_delete;
+    private ImageButton btn_share;
 
     PlaceModel mPlaceDB = new PlaceModel();
 
@@ -131,6 +135,7 @@ public class PlaceActivity extends AppCompatActivity {
         btn_photo = findViewById(R.id.btn_photo);
         prg_photo = findViewById(R.id.prg_photo);
         btn_delete = findViewById(R.id.btn_delete);
+        btn_share  = findViewById(R.id.btn_share);
 
         prepareType();
 
@@ -160,6 +165,38 @@ public class PlaceActivity extends AppCompatActivity {
             //Edit
             setTitle(getIntent().getStringExtra(PlaceModel.NAME));
             fill(getIntent().getStringExtra(PlaceModel.PLACE_ID));
+
+            btn_share.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        if (mQRBitmap == null) {
+                            return;
+                        }
+                        File cachePath = new File(getCacheDir(), "images");
+                        if (!cachePath.exists() || !cachePath.isDirectory()) {
+                            cachePath.mkdirs(); // don't forget to make the directory
+                        }
+                        String file_path = cachePath + "/QR-" + mPlaceDB.getName() + ".png";
+                        FileOutputStream stream = new FileOutputStream(file_path); // overwrites this image every time
+                        mQRBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        stream.close();
+
+                        File newFile   = new File(file_path);
+                        Uri contentUri = GenericFileProvider.getUriForFile(PlaceActivity.this, PlaceActivity.this.getApplicationContext().getPackageName() + ".fileprovider", newFile);
+                        if (contentUri != null) {
+                            Intent shareIntent = new Intent();
+                            shareIntent.setAction(Intent.ACTION_SEND);
+                            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+                            shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+                            shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                            startActivity(Intent.createChooser(shareIntent, "Choose an app"));
+                        }
+                    } catch (Exception | Error e) {
+                        Log.e(TAG, "", e);
+                    }
+                }
+            });
 
             btn_delete.setOnClickListener(new View.OnClickListener() {
 
@@ -516,6 +553,7 @@ public class PlaceActivity extends AppCompatActivity {
         }
     }
 
+    private Bitmap mQRBitmap;
     private void showQrCode(String placeid) {
         try {
             findViewById(R.id.lyt_qrcode).setVisibility(View.VISIBLE);
@@ -534,7 +572,7 @@ public class PlaceActivity extends AppCompatActivity {
                 protected Bitmap doInBackground(String... param) {
                     try {
                         Bitmap bitmap = QrCodeGenerator.textToImageEncode(PlaceActivity.this, param[0], 320);
-                        return bitmap;
+                        return mQRBitmap = bitmap;
                     } catch (Exception e) {
                         Log.e(TAG, "", e);
                     }

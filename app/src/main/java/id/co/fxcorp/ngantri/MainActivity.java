@@ -2,6 +2,7 @@ package id.co.fxcorp.ngantri;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -78,6 +79,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, "onCreate");
 
         setContentView(R.layout.activity_main);
+
+
+        if (Build.BRAND.equalsIgnoreCase("xiaomi")) {
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            startActivity(intent);
+        }
 
         AppService.registerPostCallback(this);
 

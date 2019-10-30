@@ -1,11 +1,14 @@
 package id.co.fxcorp.ngantri;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -53,21 +56,32 @@ public class AppService extends Service {
 
     @Override
     public void onCreate() {
+        Log.i(TAG, "onCreate");
         FirebaseApp.initializeApp(this);
         loadSignInSession();
         isCreated = true;
+        runAlarm(60000);
+    }
+
+
+    private void runAlarm(int interval) {
+        Intent intent = new Intent(this, AppRestart.class);
+        PendingIntent mKeepAlivePendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        ((AlarmManager) this.getSystemService(Context.ALARM_SERVICE)).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, mKeepAlivePendingIntent);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        sendBroadcast(new Intent(this, AppRestart.class));
+        Log.i(TAG, "onTaskRemoved");
+        runAlarm(60000);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        sendBroadcast(new Intent(this, AppRestart.class));
+        Log.i(TAG, "onDestroy");
+        runAlarm(60000);
     }
 
     private void loadSignInSession() {
