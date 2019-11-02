@@ -1,6 +1,7 @@
 package id.co.fxcorp.message;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.SpannableString;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 import id.co.fxcorp.db.ChatModel;
 import id.co.fxcorp.db.UserDB;
@@ -91,9 +93,15 @@ public class ChatHolder extends RecyclerView.ViewHolder {
                 }
                 text_span.append(Html.fromHtml(space));
             }
-            name_color = context.getResources().getColor(NAME_COLOURS[Long.valueOf(number).intValue() % NAME_COLOURS.length]);
+            Integer color = COLOR_ASSIGN.get(userid);
+            if (color == null) {
+                color = context.getResources().getColor(NAME_COLOURS[COLOR_ASSIGN.size() % NAME_COLOURS.length]);
+                COLOR_ASSIGN.put(userid, color);
+            }
+            name_color = color;
         }
 
+        private static HashMap<String, Integer> COLOR_ASSIGN = new HashMap<>();
     }
 
 }

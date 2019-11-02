@@ -90,11 +90,12 @@
             android:id="@+id/rcv_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="8dp"
+            android:paddingBottom="42dp"
             android:paddingTop="42dp"
             android:clipToPadding="false"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-            app:reverseLayout="true">
+            app:reverseLayout="true"
+            android:nestedScrollingEnabled="false">
         </android.support.v7.widget.RecyclerView>
 
     </android.support.v4.widget.SwipeRefreshLayout>

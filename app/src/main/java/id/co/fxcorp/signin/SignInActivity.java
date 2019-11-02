@@ -141,8 +141,9 @@ public class SignInActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
+            Log.w(TAG, "onActivityResult " + requestCode + " / " + resultCode);
             // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-            if (requestCode == RC_SIGN_IN) {
+            if (requestCode == RC_SIGN_IN && resultCode == RESULT_OK) {
                 // The Task returned from this call is always completed, no need to attach
                 // a listener.
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -163,7 +164,6 @@ public class SignInActivity extends AppCompatActivity {
                                 intent.putExtra("photo", account.getPhotoUrl().toString());
                             }
 
-                            mGoogleSignInClient.signOut();
                             startActivity(intent);
                             finish();
                         }
@@ -175,6 +175,17 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            if (mGoogleSignInClient != null) {
+                mGoogleSignInClient.signOut();
+            }
+        } catch (Exception e){
+            Log.e(TAG, "", e);
+        }
 
+    }
 }
 

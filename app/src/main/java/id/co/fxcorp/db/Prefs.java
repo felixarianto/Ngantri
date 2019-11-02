@@ -22,4 +22,16 @@ public class Prefs {
         }
         return new String[]{email, password};
     }
+
+    public static void setAutoStartAsking(Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF, 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("auto_start",    true);
+        editor.commit();
+    }
+    public static boolean getAutoStartAsking(Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF, 0); // 0 - for private mode
+        return pref.getBoolean("auto_start", false);
+    }
+
 }

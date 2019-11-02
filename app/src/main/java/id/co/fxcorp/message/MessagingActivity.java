@@ -85,7 +85,7 @@ public class MessagingActivity extends AppCompatActivity {
 
         setTitle(getIntent().getStringExtra("title"));
         mGroup  = getIntent().getStringExtra("group");
-        mNumber = getIntent().getLongExtra("number", 0l);
+        mNumber = 0;
 
         initComposer();
         initList();

@@ -177,8 +177,7 @@ public class PortalFragment extends Fragment {
     private void call() {
         if (mAntri != null) {
             final long callQty = mAntri.call_count +  1;
-            String call_msg = "Silahkan menuju ke loket.";
-            AntriDB.call(mAntri.id, callQty, call_msg)
+            AntriDB.call(mAntri.id, callQty, "")
             .addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -190,7 +189,7 @@ public class PortalFragment extends Fragment {
                             mTextToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
                         }
                         PlaceDB.setNumberCurrent(mPlaceId, mAntri.number);
-                        sendChat(callQty, text);
+                        sendChat(callQty, "Panggilan kepada antrian nomor " + txt_number.getText().toString() + " atas nama " + txt_name.getText().toString());
                     }
                     else {
                         Toast.makeText(getContext(), "Koneksi bermasalah", Toast.LENGTH_SHORT).show();

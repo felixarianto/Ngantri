@@ -88,8 +88,18 @@ public class SearchActivity extends AppCompatActivity {
 
                         }
                     });
-
                 }
+                PlaceDB.getPlaces().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        checkPlace(dataSnapshot);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             private HashSet<String> SETS_PLACE = new HashSet<>();

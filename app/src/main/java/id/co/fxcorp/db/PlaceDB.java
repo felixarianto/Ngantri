@@ -96,6 +96,11 @@ public class PlaceDB {
         });
     }
 
+    public static Query getPlaces() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
+        return ref.orderByChild(PlaceModel.NAME);
+    }
+
     public static Query getMyPlace() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(PLACE);
         return ref.orderByChild(PlaceModel.OWNER).equalTo(AppInfo.getUserId());

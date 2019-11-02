@@ -142,6 +142,8 @@ public class AppService extends Service {
     }
     public static void signIn(final Context context, String email, final String password, final SignInListener listener) {
 
+        Log.w(TAG, "signIn:" + email + " / " + password);
+
         UserDB.login(email).addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
@@ -158,9 +160,9 @@ public class AppService extends Service {
                         }
                         return;
                     }
-                    if (listener != null) {
-                        listener.OnResult(false, null);
-                    }
+                }
+                if (listener != null) {
+                    listener.OnResult(false, null);
                 }
             }
 
@@ -185,29 +187,7 @@ public class AppService extends Service {
                 try {
                     final AntriModel antri = dataSnapshot.getValue(AntriModel.class);
                     if (!antri.isComplete()) {
-                        boolean notif_call = false;
-                        AntriModel exist = ANTRI_MAP.get(antri.id);
-                        if (exist == null) {
-                            if (antri.call_count > 0) {
-                                notif_call = true;
-                            }
-                        }
-                        else {
-                            if (exist.call_count != antri.call_count) {
-                                notif_call = true;
-                            }
-                        }
                         ANTRI_MAP.put(antri.id, antri);
-
-                        if (notif_call) {
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    Notif.notifyCall(context, antri);
-                                }
-                            }.start();
-
-                        }
                         observeChat(context, antri.place_id, antri.place_name, antri.place_photo, DateUtil.formatDate(System.currentTimeMillis()));
                     }
                 } catch (Exception e) {
@@ -220,29 +200,7 @@ public class AppService extends Service {
                 try {
                     final AntriModel antri = dataSnapshot.getValue(AntriModel.class);
                     if (!antri.isComplete()) {
-                        boolean notif_call = false;
-                        AntriModel exist = ANTRI_MAP.get(antri.id);
-                        if (exist == null) {
-                            if (antri.call_count > 0) {
-                                notif_call = true;
-                            }
-                        }
-                        else {
-                            if (exist.call_count != antri.call_count) {
-                                notif_call = true;
-                            }
-                        }
                         ANTRI_MAP.put(antri.id, antri);
-
-                        if (notif_call) {
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    Notif.notifyCall(context, antri);
-                                }
-                            }.start();
-
-                        }
                     }
                     else {
                         if (ANTRI_MAP.remove(antri.id) != null) {
